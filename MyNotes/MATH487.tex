@@ -1915,8 +1915,294 @@ b_j & a_j
 \end{theorem}
 
 \begin{example}
+Consider the linear system
+
+\[
+\dot x =
+\begin{bmatrix}
+1 & -1 & 0 & 0 \\
+1 & 1 & 0 & 0 \\
+0 & 0 & 3 & -2 \\
+0 & 0 & 1 & 1
+\end{bmatrix}
+x
+\]
+
+
+where $x(0) = x_0$. Since $A$ is a diagonal matrix with $2 \times 2$ blocks along the diagonal we
+can find the eigenvalues relatively easily. The first block on the diagonal of $A$ is 
+$\begin{bmatrix} 1 & -1 \\ 1 & 1 \end{bmatrix}$ and so $\lambda_{1_{\mp}} = 1 \mp i$. Since the
+second block on the diagonal is $\begin{bmatrix} 3 & -2 \\ 1 & 1 \end{bmatrix}$ then 
+$\lambda_{1_{\mp}} = 2 \mp i$. Then the eigenvector $w_{1_{\mp}}$ associated with $\lambda_{1_{\pm}}$
+is 
+
+\[
+w_{1_{\mp}} =
+\begin{bmatrix}
+\pm i \\
+1 \\
+0 \\
+0
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+1 \\
+0 \\
+0
+\end{bmatrix}
+\mp
+i
+\begin{bmatrix}
+1 \\
+0 \\
+0 \\
+0
+\end{bmatrix}.
+\]
+
+and the eigenvector associated with $\lambda_{2_{\mp}}$ is
+
+\[
+w_{2_{\mp}} = 
+\begin{bmatrix}
+0 \\
+0 \\
+1 \mp i \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+1 \\
+1
+\end{bmatrix}
+\mp i
+\begin{bmatrix}
+0 \\
+0 \\
+1 \\
+0
+\end{bmatrix}.
+\]
+
+Now we can construct the matrix $P = [v_1 u_1 v_2 u_2]$ as
+
+\[
+P =
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 1 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\]
+
+and so
+
+\[
+\Lambda = P^{-1}AP =
+\begin{bmatrix}
+1 & -1 & 0 & 0 \\
+1 & 1 & 0 & 0 \\
+0 & 0 & 2 & -2 \\
+0 & 0 & 1 & 2 
+\end{bmatrix}.
+\]
+
+Now we can construct our general solution as
+
+\[
+x(t) = P
+\begin{bmatrix}
+e^t \cos t & -e^t \sin t & 0 & 0 \\
+e^t \sin t & e^t \cos t & 0 & 0 \\
+0 & 0 & e^{2t}\cos t & -e^{2t}\sin t \\
+0 & 0 & e^{2t}\sin t & e^{2t}\cos t
+\end{bmatrix}
+P^{-1} x_0.
+\]
+
+Note that 
+
+\[
+e^{\begin{bmatrix}
+a_j & -b_j \\
+b_j & a_j
+\end{bmatrix}
+t
+}
+=
+\begin{bmatrix}
+e^{a_j t} \cos b_j t & -e^{a_j t} \sin b_j t \\
+e^{a_j t} \sin b_j t & e^{a_j t} \cos b_j t
+\end{bmatrix}
+= e^{a_j t}
+\begin{bmatrix}
+\cos b_j t & -sin b_j t \\
+\sin b_j t & \cos b_j t
+\end{bmatrix}.
+\]
+
+Now we can rewrite our solution as
+
+\[
+x(t) =
+\begin{bmatrix}
+e^t \cos t & -e^t \sin t & 0 & 0 \\
+e^t \sin t & e^t \cos t & 0 & 0 \\
+0 & 0 & e^{2t} (\cos t + \sin t) & -2 e^{2t} \sin t \\
+0 & 0 & e^{2t} \sin t & e^{2t} (\cos t - \sin t)
+\end{bmatrix}
+x_0.
+\]
+\end{example}
+
+\begin{remark}
+For an example of a repeated complex eigenvalue with algebraic multiplicity consider $(\lambda^2 + 2)^2 = 0$ and
+so $\lambda^2 + 1 - 0$. Therefore $\lambda^2 = -1$ and so $\lambda = \pm i$.  
+\end{remark}
+
+
+\begin{example}
+
+Consider the linear system $\dot x = Ax$ where
+
+\[
+A =
+\begin{bmatrix}
+0 & -1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 0 & 0 & -1 \\
+0 & 0 & 1 & 0 \\
+\end{bmatrix}.
+\]
+
+Then $\lambda = \pm i$ with algebraic multiplicity of 2. The eigenvector $w_{1_{\pm}}$ is
+
+\[
+w_{1_{\pm}} = 
+\begin{bmatrix}
+0 \\
+0 \\
+i \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+0 \\
+1
+\end{bmatrix}
+\pm i
+\begin{bmatrix}
+0 \\
+0 \\
+1 \\
+0
+\end{bmatrix}.
+\]
+
+We must now find a generalized eigenvector because $\lambda$ is a deficient eigenvalue. To
+do this we consider $(A - \lambda I)^2 w_{2_{\pm}} = 0$ and solve this equation for $w_{2_{\pm}}$.
+Doing this we find that
+
+\[
+w_{2_{\pm}} =
+\begin{bmatrix}
+i \\
+1 \\
+0 \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+1 \\
+0 \\
+1
+\end{bmatrix}
+\pm i
+\begin{bmatrix}
+1 \\
+0 \\
+0 \\
+0
+\end{bmatrix}.
+\]
+
+Now the matrix $P$ is
+
+\[
+P = [v_1 u_1 v_2 u_2] =
+\begin{bmatrix}
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 1
+\end{bmatrix}
+\]
+
+and then
+
+\[
+S = P \Lambda P^{-1} =
+P
+\begin{bmatrix}
+0 & -1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 0 & 0 & -1 \\
+0 & 0 & 1 & 0
+\end{bmatrix}
+P^{-1}
+=
+\begin{bmatrix}
+0 & -1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & -1 \\
+1 & 0 & 1 & 0
+\end{bmatrix}.
+\]
+
+Now we construct the matrix $N$ as
+
+\[
+N = A - S = 
+\begin{bmatrix}
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & -1 & 0 & 0 \\
+1 & 0 & 0 & 0
+\end{bmatrix}.
+\]
+
+We know that $N$ is nilpotent with order 2 so that $N^2 = 0$. Now we can write our
+general solution as
+
+\[
+x(t) = P
+\begin{bmatrix}
+\cos t & -\sin t & 0 & 0 \\
+\sin t & \cos t & 0 & 0 \\
+0 & 0 & \cos t & -sin t \\
+0 & 0 & \sin t & \cos t
+\end{bmatrix}
+P^{-1} (I + Nt) x_0.
+\]
 
 \end{example}
 
+\section{Fundamental Solution}
+
+\begin{theorem}
+Let $A$ be an $n \times n$ matrix. Then the initial value problem $\dot x = Ax$, $x(0) = x_0$ has the unique solution
+$x(t) = e^{At}x_0$.
+\end{theorem}
+
+\begin{proof}
+a
+\end{proof}
 
 \end{document}
