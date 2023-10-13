@@ -1,0 +1,1922 @@
+\documentclass[12pt]{article}
+
+%\documentclass{amsart}
+%\documentclass{scrartcl}
+%\usepackage{changepage}
+%\usepackage{scrextend}
+
+\usepackage{amssymb,amsmath,amsthm}
+% amssymb has empty set symbo
+\usepackage{scrextend} % for \begin{addmargin}[0.55cm]{0cm} text \end{margin}
+
+\usepackage{mathrsfs} % for \mathscr{P}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{hanging}
+\usepackage{verbatim}
+\usepackage{mathtools}
+\usepackage{pst-node}%
+
+\newcommand{\n}{ \noindent }
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\G}{\mathcal{G}}
+
+
+\newcommand{\pwset}{\mathcal{P}}
+%\newcommand{\pwset}{\mathscr{P}}
+\DeclareMathOperator{\LO}{\mathcal{L}}
+
+% from https://tex.stackexchange.com/questions/644238/drawing-the-phase-portrait-of-two-differential-equations
+% \usepackage{pgfplots}
+% \pgfplotsset{compat=1.8}
+% \usepackage{amsmath}
+% \usepackage{derivative}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.8}
+\usetikzlibrary{decorations.markings}
+\usepackage{amsmath}
+\usepackage{derivative}
+
+%\DeclareFontFamily{U}{MnSymbolC}{}
+%\DeclareSymbolFont{MnSyC}{U}{MnSymbolC}{m}{n}
+%\DeclareFontShape{U}{MnSymbolC}{m}{n}{
+%  <-6>    MnSymbolC5
+%  <6-7>   MnSymbolC6
+%  <7-8>   MnSymbolC7
+%  <8-9>   MnSymbolC8
+%  <9-10>  MnSymbolC9
+%  <10-12> MnSymbolC10
+%  <12->   MnSymbolC12%
+%}{}
+%\DeclareMathSymbol{\powerset}{\mathord}{MnSyC}{180}
+
+%\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[left=1.2in, right=1.2in, top=1in, bottom=1in]{geometry}
+
+\newtheorem*{proposition}{Proposition}
+\newtheorem*{lemma}{Lemma}
+
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+\newtheorem{conj}{Conjecture}[section]
+\newtheorem*{example}{Example}
+\newtheorem{theorem}{Theorem}[section]  % This enables \begin{theorem}
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem*{claim}{Claim}
+\newtheorem*{remark}{Remark}
+
+\newcommand{\innerproduct}[2]{\langle #1, #2 \rangle}
+\DeclareMathOperator{\Tr}{Tr} 
+
+\tikzset
+  {every pin/.style={pin edge={<-}}
+  ,>=stealth
+  ,flow/.style=
+    {decoration=
+      {markings
+      ,mark=at position #1 with {\arrow{>}}
+      }
+    ,postaction={decorate}
+    }
+  ,flow/.default=0.5
+  }
+\newcommand\inlayscale{}
+\newcommand\inlaycaption[1]{{\sffamily\scriptsize#1}}
+\newcommand\newinlay[4][0.18]%
+  {\renewcommand\inlayscale{#1}%
+   \newsavebox#2%
+   \savebox#2%
+     {\begin{tabular}{@{}c@{}}
+        #4\\[-1ex]
+        \inlaycaption{#3}\\[-1ex]
+      \end{tabular}%
+     }%
+  }
+\newcommand\inlay[1]{\usebox{#1}}
+\newcommand\tr{\mathop{\mathrm{tr}}}
+
+\newinlay\saddle{saddle}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+     \foreach \sx in {+,-}
+      {\draw[flow] (\sx4,0) -- (0,0);
+       \draw[flow] (0,0) -- (0,\sx4);
+       \foreach \sy in {+,-}
+         \foreach \a/\b/\c/\d in {2.8/0.3/0.7/0.6,3.9/0.4/1.3/1.1}
+           \draw[flow] (\sx\a,\sy\b)
+              .. controls (\sx\c,\sy\d) and (\sx\d,\sy\c)
+              .. (\sx\b,\sy\a);
+      }
+   \end{tikzpicture}%
+  }
+
+\newinlay\sink{sink}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+    \foreach \sx in {+,-}
+     {\draw[flow] (\sx4,0) -- (0,0);
+      \draw[flow] (0,\sx4) -- (0,0);
+      \foreach \sy in {+,-}
+         \foreach \a/\b in {2/1,3/0.44}
+          \draw[flow,domain=\sx\a:0] plot (\x, {\sy\b*\x*\x});
+     }
+   \end{tikzpicture}%
+  }
+
+\newinlay\source{source}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+     \foreach \sx in {+,-}
+      {\draw[flow] (0,0) -- (\sx4,0);
+       \draw[flow] (0,0) -- (0,\sx4);
+       \foreach \sy in {+,-}
+         \foreach \a/\b in {2/1,3/0.44}
+           \draw[flow,domain=0:\sx\a] plot (\x, {\sy\b*\x*\x});
+      }
+   \end{tikzpicture}%
+  }
+
+\newinlay\stablefp{line of stable fixed points}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+    \draw (-4,0) -- (4,0);
+    \foreach \s in {+,-}
+     {\draw[flow] (0,\s4) -- (0,0);
+      \foreach \x in {-3,-2,-1,1,2,3}
+        \draw[flow] (\x,\s3) -- (\x,0);
+     }
+   \end{tikzpicture}%
+  }
+
+\newinlay\unstablefp{line of unstable fixed points}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+     \draw (-4,0) -- (4,0);
+     \foreach \s in {+,-}
+      {\draw[flow] (0,0) -- (0,\s4);
+       \foreach \x in {-3,-2,-1,1,2,3}
+         \draw[flow] (\x,0) -- (\x,\s3);
+      }
+   \end{tikzpicture}%
+  }
+
+\newinlay\spiralsink{spiral sink}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+     \draw (-4,0) -- (4,0);
+     \draw (0,-4) -- (0,4);
+     \draw[samples=100,smooth,domain=27:7] plot ({\x r}: {0.005*\x*\x});
+     \draw[->] ({26 r}: {0.005*26*26}) -- +(0.01,-0.01);
+   \end{tikzpicture}%
+  }
+
+\newinlay\spiralsource{spiral source}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+     \draw (-4,0) -- (4,0);
+     \draw (0,-4) -- (0,4);
+     \draw [samples=100,smooth,domain=10:28] plot ({-\x r}: {0.005*\x*\x});
+     \draw[<-] ({-27.5 r}: {0.005*27.5*27.5}) -- +(0.01,-0.008);
+   \end{tikzpicture}%
+  }
+
+\newinlay[0.15]\centre{center}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+     \draw (-4,0) -- (4,0);
+     \draw (0,-4) -- (0,4);
+     \foreach \r in {1,2,3} \draw[flow=0.63] (\r,0) arc (0:-360:\r cm);
+   \end{tikzpicture}%
+  }
+
+\newinlay\degensink{degenerate sink}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+     \draw (0,-4) -- (0,4);
+     \draw[flow] (-4,0) -- (0,0);
+     \draw[flow] (4,0) -- (0,0);
+     \draw[flow] (-3.5,3.5) .. controls (4,1.5) and (4,1).. (0,0);
+     \draw[flow] (3.5,-3.5) .. controls (-4,-1.5) and (-4,-1) .. (0,0);
+     \draw[flow] (-3.5,2.5) .. controls (2,1) and (2,0.8).. (0,0);
+     \draw[flow] (3.5,-2.5) .. controls (-2,-1) and (-2,-0.8) .. (0,0);
+   \end{tikzpicture}%
+  }
+
+\newinlay\degensource{degenerate source}%
+  {\begin{tikzpicture}[scale=\inlayscale]
+     \draw (0,-4) -- (0,4);
+     \draw[flow] (0,0) -- (-4,0);
+     \draw[flow] (0,0) -- (4,0);
+     \draw[flow] (0,0) .. controls (4,1.5) and (4,1).. (-3.5,3.5);
+     \draw[flow] (0,0) .. controls (-4,-1.5) and (-4,-1) .. (3.5,-3.5);
+     \draw[flow] (0,0) .. controls (2,1) and (2,0.8).. (-3.5,2.5);
+     \draw[flow] (0,0) .. controls (-2,-1) and (-2,-0.8) .. (3.5,-2.5);
+   \end{tikzpicture}%
+  }
+
+\title{MATH 487 - Notes \\
+Continuous Dynamical Systems}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Linear Systems of ODEs}
+
+A linear system of ODEs can be written as:
+
+\begin{equation*}
+\dot x = Ax
+\end{equation*}
+
+where $x \in \mathbb{R}^n$ and $A \in \mathbb{R}^{n \times n}$. We will look at the solution to this system as $n$ varies over $0, 1, 2, \ldots$ and the system of equations are coupled are not coupled.
+
+\subsection{n = 1}
+
+If $n = 1$ we have
+
+\begin{equation*}
+\begin{split}
+\dot x = ax \\
+x(0) = c
+\end{split}
+\end{equation*}
+
+and the solution to this equation is $x(t) = c e^{at}$.
+
+\subsection{n = 2 (uncoupled)}
+
+If $n = 2$ and the two equations are not coupled then we have
+
+\begin{equation*}
+\begin{split}
+\dot x_{1} &= -x_{1} \quad\quad x_1(0) = c_1 \\
+\dot x_{2} &= 2x_2 \quad\quad x_2(0) = c_2
+\end{split}
+.
+\end{equation*}
+
+Since the two equations are not coupled we can solve them separately giving the solution
+
+\begin{equation*}
+\begin{split}
+x_1(t) &= c_1 e^{-t} \\
+x_2(t) &= c_2 e^{2t}
+\end{split}
+.
+\end{equation*}
+
+We can rewrite these separate equations as a linear system,
+
+\begin{equation*}
+\dot x =
+\begin{bmatrix}
+-1 & 0 \\
+0 & 2
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\
+x_2
+\end{bmatrix}
+\quad\quad x(0) = c, x \in \mathbb{R}^2
+\end{equation*}
+
+and the solution to this linear system is
+
+\begin{equation*}
+x(t) =
+\begin{bmatrix}
+e^{-t} & 0 \\
+0 & e^{2t}
+\end{bmatrix}
+c
+\quad\quad c \in \mathbb{R}^2.
+\end{equation*}
+
+[to do: insert graph with phase curves]
+
+To find the equations of the phase curves for this system we can divide both sides of the second equation by the first equation
+
+\begin{equation*}
+\dfrac{dx_2}{dx_1} = \dfrac{2x_2}{-x_1}
+\end{equation*}
+
+which is a first order differential equation we can solve by separation of variables. Letting $y = x_2$ and $x = x_1$ and rearranging the equation we have
+
+\begin{equation*}
+\dfrac{dy}{dx} = \dfrac{-2y}{-x} \implies \dfrac{dy}{y} = \dfrac{-2}{x}dx
+\end{equation*}
+
+and integrating both sides then solving for $y$ we get
+
+\begin{equation*}
+\begin{split}
+\ln y &= -2 \ln x + c = \ln x^{-2} + c \\
+y &= e^c \dfrac{1}{x^2} = \dfrac{\hat c}{x^2}
+\end{split}
+\end{equation*}
+
+where $\hat c$ will determine which phase curve we are on in the phase curve diagram.
+
+
+\subsection{n = 3 (uncoupled)}
+
+If $n = 3$ and the equations are not coupled then we have
+
+\begin{equation*}
+\begin{split}
+\dot x_1 &= x_1 \\
+\dot x_2 &= x_2 \\
+\dot x_3 &= -x_3
+\end{split}
+\end{equation*}
+
+which has the solution
+
+\begin{equation*}
+\begin{split}
+x_1(t) &= c_1 e^t \\
+x_2(t) &= c_2 e^t \\
+x_3(t) &= c_3 e^{-t}
+\end{split}
+.
+\end{equation*}
+
+These three equations can be rewritten as
+
+\begin{equation*}
+\begin{split}
+\dot x &= 
+\begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & -1
+\end{bmatrix}
+x  \\
+x(0) &= c 
+\end{split}
+\end{equation*}
+
+where $x \in \mathbb{R}^3$ and $c \in \mathbb{R}^3$.
+
+
+[add phase portrait diagram]
+
+
+\subsection{Classification of 2 $\times$ 2 linear systems based on eigenvalues of $A$}
+
+Let $\dot x = Ax$ represents a system of coupled equations. Then $A$ must have some non-zero entries for the off diagonals and therefore $A$ is not diagonal. First we state a useful theorem from linear algebra.
+
+\begin{theorem}
+If the eigenvalues $\lambda_1, \lambda_2, \ldots \lambda_n$ of the $n \times n$ matrix $A$ are real and distinct then any set of corresponding eigenvectors form a basis for $\mathbb{R}^n$. In addition, the matrix $P$ whose column vectors are the eigenvectors of $A$, denoted $P = [v_1, v_2, \ldots, v_n] \in \mathbb{R}^n$ is invertible and
+
+$$ P^{-1}AP = \text{diag}[\lambda_1, \lambda_2, \ldots, \lambda_n], $$
+
+where $\text{diag}[\lambda_1, \lambda_2, \ldots, \lambda_n]$ denotes a diagonal matrix whose diagonal entries starting at the upper left corner are $\lambda_1, \lambda_2, \ldots, \lambda_n$.
+\end{theorem}
+
+We now consider different cases for the eigenvalues of $A$.
+
+\subsubsection{Case 1: $A$ has real and distinct eigenvalues}
+
+Start with $\dot x = Ax$ assuming this represents a system of coupled differential equations and that $A$ has real and distinct eigenvalues. Assume $P = [v_1, v_2, \ldots, v_n]$ so $P^{-1}$ exists (Since $v_1, v_2, \ldots, v_n$ form a basis they are linearly independent, which implies $P$ is invertible). Define 
+
+\begin{equation} \label{eq01}
+y = P^{-1}x.
+\end{equation}
+
+Then left multiplying both sides of the above equation by $P$ we have
+
+$$ Py = PP^{-1}x = x $$
+
+so that we have $x = Py$. Now taking the derivatives on both sides of \eqref{eq01} we have
+
+\begin{equation}
+\begin{split}
+\dot y &= P^{-1} \dot x \\
+&= P^{-1} Ax \\
+&= P^{-1}A (Py) \\
+&= (P^{-1}AP)y
+\end{split}
+.
+\end{equation}
+
+We can have converted the original linear system $\dot x = Ax$ to a new system
+
+$$\dot y = \Lambda y$$
+
+where $\Lambda = \text{diag}[\lambda_1, \lambda_2, \ldots, \lambda_n]$. This is a system of uncoupled differential equations that has the solution
+
+\begin{equation*}
+y(t) =
+\begin{bmatrix}
+e^{\lambda_1 t} & & \\
+& e^{\lambda_2 t} & \\
+& & \ddots & \\
+& & & e^{\lambda_n t}
+\end{bmatrix}
+y(0)
+\end{equation*}
+
+where $y(0) = P^{-1}x(0)$. Now plugging in this value for $y$ into $x = Py$ we get the solution to the original linear system as
+
+\begin{equation*}
+x(t) = P
+\begin{bmatrix}
+e^{\lambda_1 t} & & \\
+& e^{\lambda_2 t} & \\
+& & \ddots & \\
+& & & e^{\lambda_n t}
+\end{bmatrix}
+P^{-1}x(0).
+\end{equation*}
+
+\begin{example}
+Consider the linear system $\dot x = \begin{bmatrix} 6 & -1 \\ 2 & 3 \end{bmatrix} x$. Then solving the equation $\det (A - \lambda I) = 0$
+we find that $\lambda_1 = 5$ and $\lambda_2 = 4$. Then $v_1 = \begin{bmatrix} 1 & 1 \end{bmatrix}$ and 
+$v_2 = \begin{bmatrix} 1 & 2 \end{bmatrix}$.
+
+Now we need to form the matrix $P = \text{diag}[v_1, v_2]$ which is
+
+\[
+\begin{bmatrix}
+1 & 1 \\
+1 & 2
+\end{bmatrix}.
+\] 
+
+We also need to find $P^{-1}$ which is
+
+\[
+P^{-1} = \dfrac{1}{\det P} \begin{bmatrix} 2 & -1 \\ -1 & 1 \end{bmatrix} = \begin{bmatrix} 2 & -1 \\ -1 & 1 \end{bmatrix}.
+\]
+
+
+Now we form the matrix $P^{-1}AP$ as
+
+\begin{equation*}
+\begin{split}
+P^{-1}AP &=
+\begin{bmatrix}
+2 & -1 \\
+-1 & 1
+\end{bmatrix}
+\begin{bmatrix}
+6 & -1 \\
+2 & 3
+\end{bmatrix}
+\begin{bmatrix}
+1 & 1 \\
+1 & 2
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+10 & -5 \\
+-4 & 4
+\end{bmatrix}
+\begin{bmatrix}
+1 & 1 \\
+1 & 2
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+5 & 0 \\
+0 & 4
+\end{bmatrix}.
+\end{split}
+\end{equation*}
+
+Then the solution to $\dot y = \Lambda y = \begin{bmatrix} 5 & 0 \\ 0 & 4 \end{bmatrix}$ is 
+$y(t) = \begin{bmatrix} e^{5t} & 0 \\ 0 & e^{4t} \end{bmatrix}$. Then converting back to $x$ 
+using $x = Py$ we have the solution to our original linear system as
+
+\begin{equation*}
+x(t) = Py(t) = P \begin{bmatrix} e^{5t} & 0 \\ 0 & e^{4t} \end{bmatrix} P^{-1} x(0).
+\end{equation*}
+
+
+\end{example}
+
+
+\subsubsection{Case 2: $A$ has real repeated eigenvalues}
+
+Consider the linear system $\dot x = Ax$ where $x \in \mathbb{R}^2$ and $A \in \mathbb{R}^{2 \times 2}$. Now consider the case where 
+
+\begin{equation*}
+A =
+\begin{bmatrix}
+\lambda_1 & 1 \\
+0 & \lambda_1
+\end{bmatrix}
+.
+\end{equation*}
+
+To find the eigenvalues of $A$ we solve the equation $\det (A - \lambda I) = 0$ for $\lambda$, which is $(\lambda_1 - \lambda)^2 = 0$ and so $\lambda = \lambda_1$ and $\lambda = \lambda_1$. To find the eigenvector associated with $\lambda_1$ we plug in $\lambda_1$ for $\lambda$ in $A - \lambda I = 0$ and solve the resulting system of linear equations. Doing this we have
+
+\begin{equation*}
+\begin{bmatrix}
+\lambda_1 - \lambda_1 & 1 - 0 \\
+0 & \lambda_1 - \lambda_1
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 & 1 \\
+0 & 0 
+\end{bmatrix}
+\end{equation*} 
+
+and then we have the linear system
+
+\begin{equation*}
+\begin{bmatrix}
+0 & 1 \\
+0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+\alpha_1 \\
+\alpha_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0
+\end{bmatrix}
+.
+\end{equation*}
+
+This can be rewritten as two equations,
+
+\begin{equation*}
+\begin{split}
+0(\alpha_1) + 1(\alpha_2) = 0 \\
+0(\alpha_1) + 0(\alpha_2) = 0 
+\end{split}
+\end{equation*}
+
+and we see that $\alpha_2 = 0$ and $\alpha_1$ is a free variable and so we set $\alpha_1 = 1$. Then the eigenvector associated with $\lambda_1$ is $\begin{bmatrix} 1 \\ 0 \end{bmatrix}$.
+
+Now consider the linear system
+
+\begin{equation*}
+\begin{split}
+x^{\prime} &= \lambda_1 x + y \\
+y^{\prime} &= \lambda_1 y
+\end{split}
+\end{equation*}
+
+where $y(t) = c_2 e^{\lambda_1 t}$. Now plugging in $y(t)$ into $x^{\prime} = \lambda_1 x + y$ we have $x^{\prime} = \lambda_1 x + c_2 e^{\lambda_1 t}$, which is a first order, linear, nonhomogenous equation. The general solution to this equation is $x(t) = x(t)_h + x(t)_p$ where $x(t)_h$ is the solution to the corresponding homogeneous equation $x^{\prime} = \lambda_1 x$ and $x(t)_p$ is any solution to the nonhomogeneous equation. We have that $x_h(t) = c_1 e^{\lambda_1 t}$ and $x_p(t) = cte^{\lambda_1 t}$. Therefore $\{e^{\lambda_1 t}, te^{\lambda_1 t} \}$ is a fundamental solution set for the differential equation and the general solution is
+
+\begin{equation*}
+x(t) = c_1 e^{\lambda_1 t}
+\begin{bmatrix}
+1 \\
+0
+\end{bmatrix}
++
+c_2 e^{\lambda_1 t}
+\begin{bmatrix}
+t \\
+1
+\end{bmatrix}
+\end{equation*}
+
+Now what happens to the solution $x(t)$ as $t \rightarrow \infty$? We consider two cases (1) $\lambda_1 > 0$ and (2) $\lambda_1 < 0$.
+
+If $\lambda_1 > 0$ then $x(t) \rightarrow \mp \infty$.
+
+If $\lambda_1 < 0$ then we need to find $\lim_{t \rightarrow \infty} c_2 e^{\lambda_1 t} \begin{bmatrix} t \\ 1 \end{bmatrix} = \begin{bmatrix}  \lim_{t \rightarrow \infty} c_2 t e^{\lambda_1 t} \\ \lim_{t \rightarrow \infty} c_2 e^{\lambda_1 t}  \end{bmatrix}$. We know that $\lim_{t \rightarrow \infty} c_2 e^{\lambda_1 t} = 0$ since $\lambda < 0$. To find $\lim_{t \rightarrow \infty} c_2 t e^{\lambda_1 t}$ we can use L'Hopital's rule,
+
+\begin{equation*}
+\begin{split}
+\lim_{t \rightarrow \infty} c_2 t e^{\lambda_1 t} &= c_2 \lim_{t \rightarrow \infty} \frac{\frac{t}{1}}{e^{-\lambda_1 t}} \\
+&= c_2 \lim_{t \rightarrow \infty} \frac{1}{-\lambda_1 e^{-\lambda_1 t}} \\
+&= c_2 \frac{1}{\infty} \\
+&= c_2 \cdot 0 \\
+&= 0
+\end{split}
+.
+\end{equation*}
+
+Therefore, if $\lambda_1 < 0$ then $x(t) \rightarrow 0$ as $t \rightarrow \infty$.
+
+\subsubsection{Case 3: $A$ has complex conjugate pair of eigenvalues}
+
+Consider the linear system $\dot x = Ax$ where $x \in \mathbb{R}^2$ and $A \in \mathbb{R}^{2 \times 2}$. Now assume that the eigenvalues $\lambda_{\mp}$ for $A$ are a complex conjugate pair $\alpha \mp i \beta$ where $\alpha$ and $\beta$ are real numbers and $i = \sqrt{-1}$. The eigenvectors associated with the complex conjugate pair of eigenvalues are $v \mp = u \mp i w$. Assume the initial conditions are $c \mp = \frac{1}{2} (g \mp i h)$. The solutions $e^{\lambda t}$ will now have the form $e^{(\alpha \mp i \beta)t}$ which we can rewrite using Euler's formula as
+
+\begin{equation*}
+e^{(\alpha \mp i \beta)t} = e^{\alpha t} e^{\mp i \beta t} = e^{\alpha t}(\cos \beta t \mp i \sin \beta t).
+\end{equation*}
+
+
+
+\section{Classification of phase portrait for 2 x 2 linear systems}
+
+In this section we consider linear systems of the form
+
+\begin{equation*}
+\begin{split}
+\dot x &= Ax \\
+x(0) &= x_0
+\end{split}
+\end{equation*}
+
+where $A \in \mathbb{R}^{2 \times 2}$, $x_0 \in \mathbb{R}^2$, and $x$ is a function $x : \mathbb{R} \rightarrow \mathbb{R}^2$ where $x(t) = (x_1(t), x_2(t))$. Considering a specific example this system can be written as
+
+\begin{equation*}
+\begin{matrix}
+\begin{split}
+\dot x_1 &= -x_1 & x_1(0) = c_1 \\
+\dot x_2 &= 2x_2 & x_2(0) = c_2
+\end{split}
+\end{matrix}
+\end{equation*}
+
+and the solution is
+
+\begin{equation*}
+\begin{split}
+x_1(t) &= c_1 e^{-t} \\
+x_2(t) &= c_2 e^{2t}
+\end{split}
+.
+\end{equation*}
+
+This is a system of decoupled equations that can also be written as
+
+
+\begin{equation*}
+\begin{bmatrix}
+\dot x_1 \\
+\dot x_2
+\end{bmatrix}
+= 
+\begin{bmatrix}
+-1 & 0 \\
+0 & 2 
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\
+x_2
+\end{bmatrix}
+\end{equation*}
+
+with initial conditions
+
+
+\begin{equation*}
+\begin{bmatrix}
+x_1 \\
+x_2
+\end{bmatrix}
+(0) =
+\begin{bmatrix}
+c_1 \\
+c_2
+\end{bmatrix}
+.
+\end{equation*}
+
+
+The solution can be written as
+
+\begin{equation*}
+\begin{bmatrix}
+x_1(t) \\
+x_2(t)
+\end{bmatrix}
+=
+\begin{bmatrix}
+e^{-t} & 0 \\
+0 & e^{2t}
+\end{bmatrix}
+\begin{bmatrix}
+c_1 \\
+c_2
+\end{bmatrix}
+.
+\end{equation*}
+
+The eigenvalues of the matrix $\begin{bmatrix} -1 & 0 \\ 0 & 2 \end{bmatrix}$ are $\lambda_1 = -1$ and $\lambda_2 = 2$ with associated eigenvectors $v_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$ and $v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$. So we can also write the solution of the above system as
+
+\begin{equation*}
+\begin{split}
+\begin{bmatrix}
+x_1(t) \\
+x_2(t)
+\end{bmatrix}
+&=
+c_1 e^{-t} v_1 + c_2 e^{2t} v_2 \\
+&=
+c_1 e^{-t}
+\begin{bmatrix}
+1 \\
+0
+\end{bmatrix}
++
+c_2 e^{2t}
+\begin{bmatrix}
+0 \\
+1
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+c_1 e^{-t} \\
+c_2 e^{2t}
+\end{bmatrix}
+\end{split}
+.
+\end{equation*}
+
+
+\subsection{Saddle}
+
+% from https://tex.stackexchange.com/questions/644238/drawing-the-phase-portrait-of-two-differential-equations
+
+% Define style to the axis
+\pgfplotsset{MyQuiverAxis/.style={
+    width=\textwidth, % Overall width of the plot
+    xlabel={$x$}, ylabel={$y$},
+    xmin=-2.1, xmax=2.1, % Axis limits
+    ymin=-2.1, ymax=2.1,
+    domain=-2:2, y domain=-2:2, % Domain over which to evaluate the functions
+    axis equal image, % Unit vectors for both axes have the same length
+    view={0}{90}, % We need to use "3D" plots, but we set the view so we look at them from straight up
+    % colormap/viridis,
+    colormap/hot,
+    colorbar,
+    colorbar style = {
+      ylabel = {Vector Length}
+    }
+  }
+}
+
+% Define a common style to quivers
+\pgfplotsset{MyQuiver2Dnorm/.style={
+    %cycle list={% Plot styles
+    samples=15, % How many arrows?
+    quiver={
+      %u={f(x,y)/sqrt((f(x,y)^2+(g(x,y))^2))}, v={g(x,y)/sqrt((f(x,y)^2+(g(x,y))^2))}, % End points of the arrows
+      u={f(x,y)}, v={g(x,y)},			%%%% REMOVED the denominators
+      scale arrows=0.2,
+    },
+    -latex,
+    %},
+    % domain=-5.0:5.0, y domain=-0.5:0.5, % Change if domain not equal to axis functions
+    quiver/colored = {mapped color},
+    point meta = {sqrt((f(x,y))^2+(g(x,y))^2)},
+  }
+}
+
+\pgfplotsset{MyArrowDecorationPlot/.style n args={3}{
+    decoration={
+      markings,
+      mark=between positions #1 and #2 step 2em with {\arrow [scale=#3]{latex}}
+    }, postaction=decorate
+  },
+  MyArrowDecorationPlot/.default={0.1}{0.99}{1.5}
+}
+
+
+\begin{tikzpicture}[
+  declare function={f(\x,\y) = -\x;},
+  declare function={g(\x,\y) = 2*\y;}
+  ]
+  \begin{axis}[
+    MyQuiverAxis,
+    title={$\displaystyle \odv{x}{t} = -x; \odv{y}{t} = 2y$},
+    xmin=-10, xmax=10, % Axis limits
+    ymin=-10, ymax=10,
+    domain=-10:10, y domain=-10:10
+    ]
+    \addplot3 [MyQuiver2Dnorm, 
+      domain=-9:9, y domain=-9:9,
+      quiver={scale arrows=0.1}] (x,y,0);
+     
+    \addplot [thick, red, domain=-10:0, MyArrowDecorationPlot] {0};
+    % \addplot [thick, red, domain=0:1/4, MyArrowDecorationPlot] {0};
+    \addplot [thick, red, domain=10:0, MyArrowDecorationPlot] {0};
+    
+    \addplot [thick, magenta, MyArrowDecorationPlot] coordinates{ (0, 0) (0, 10)};
+    \addplot [thick, magenta, MyArrowDecorationPlot] coordinates{ (0, 0) (0, -10)};    
+    
+    % \addplot [thick, magenta, domain=0:-0.4,
+    %   MyArrowDecorationPlot={0.05}{1}{1.25}] {-4*x};
+    % \addplot [thick, magenta, domain=0:1/12,
+    %   MyArrowDecorationPlot={0.05}{1}{1.25}] {-4*x};
+    % \addplot [thick, magenta, domain=0.4:1/12, 
+    %   MyArrowDecorationPlot={0.05}{1}{1.25}] {-4*x};
+    
+    % \addplot [thick, violet, domain=-0.4:-1/8, MyArrowDecorationPlot] {+x};
+    % \addplot [thick, violet, domain=0:-1/8, MyArrowDecorationPlot] {+x};
+    % \addplot [thick, violet, domain=0:0.4, MyArrowDecorationPlot] {+x};
+    
+      \addplot [thick, magenta, domain=0.1:10] {1/x};  
+      \addplot [thick, magenta, domain=0.1:10] {5/x}; 
+      \addplot [thick, magenta, domain=0.1:10] {10/x};
+ 
+      \addplot [thick, magenta, domain=0.1:10] {-1/x};  
+      \addplot [thick, magenta, domain=0.1:10] {-5/x}; 
+      \addplot [thick, magenta, domain=0.1:10] {-10/x};     
+
+      \addplot [thick, magenta, domain=-0.1:-10] {1/x};  
+      \addplot [thick, magenta, domain=-0.1:-10] {5/x}; 
+      \addplot [thick, magenta, domain=-0.1:-10] {10/x};
+      
+      \addplot [thick, magenta, domain=-0.1:-10] {-1/x};  
+      \addplot [thick, magenta, domain=-0.1:-10] {-5/x}; 
+      \addplot [thick, magenta, domain=-0.1:-10] {-10/x};
+    
+    %\addplot [very thick, fill=white, only marks] coordinates {(0,0)};
+  \end{axis}
+\end{tikzpicture}
+
+
+\subsection{Node}
+
+\subsection{Focus or Spiral}
+
+\subsection{Degenerate Cases}
+
+\section{Summary of solutions of 2 $\times$ 2 linear systems}
+
+
+\subsection{real and distinct}
+
+Consider the linear system $\dot x = A x$ where 
+
+\begin{equation*}
+A =
+\begin{bmatrix}
+-1 & 0 \\
+0 & 2
+\end{bmatrix}
+\end{equation*}
+
+and the eigenvalues of $A$ are real and distinct.
+
+The solution of this system has the form
+
+\begin{equation*}
+x(t) = c_1 v_1 e^{\lambda_1 t} + c_2 v_2 e^{\lambda_2 t}.
+\end{equation*}
+
+where $\lambda_1$ and $\lambda_2$ are eigenvalues of $A$, $v_1$ and $v_2$ are the eigenvectors associated with $\lambda_1$ and $\lambda_2$, and $c_1$ and $c_2$ are constants.
+
+\subsection{repeated root}
+
+Consider the linear system $\dot x = A x$ where 
+
+\begin{equation*}
+\begin{bmatrix}
+-1 & 1 \\
+0 & -1
+\end{bmatrix}
+\end{equation*}
+
+and the eigenvalues of $A$ are real and repeated.
+
+The solution to this system has the form
+
+\begin{equation*}
+x(t) = c_1 v_1 e^{-t} + c_2 v_2 t e^{-t}
+\end{equation*}
+
+where $\lambda_1 = -1$ and $\lambda_2 = -1$ are eigenvalues of $A$, $v_1$ and $v_2$ are the eigenvectors associated with $\lambda_1 = -1$ and $\lambda_2 = -1$, and $c_1$ and $c_2$ are constants.
+
+\subsection{complex conjugate pair}
+
+Consider the linear system $\dot x = A x$ where
+
+\begin{equation*}
+\begin{bmatrix}
+\alpha & \beta \\
+-\beta & \alpha
+\end{bmatrix}
+\end{equation*}
+
+and the eigenvalues of $A$ are $\lambda = \alpha \mp i\beta$ and the eigenvectors associated with $\lambda$ are $u \mp iv$.
+The solution to this system has the form
+
+\begin{equation*}
+x(t) = e^{\alpha t} 
+\begin{bmatrix}
+u & v
+\end{bmatrix}
+\begin{bmatrix}
+\cos \beta t & \sin \beta t \\
+-\sin \beta t & \cos \beta t
+\end{bmatrix}
+\begin{bmatrix}
+g \\
+-h
+\end{bmatrix}
+\end{equation*}
+
+\section{Trace-Determinant plane}
+
+Consider the generic $2 \times 2$ linear system $\dot x = Ax$ where $A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$. Then we have that $\det A = ad - bc$ and $\tr A = a + d$.
+
+To find the eigenvalues of $A$ we solve the equation $\det (A - \lambda I) = 0$. First we calculate $\det (A - \lambda I)$ as
+
+\begin{equation*}
+\begin{split}
+\det (A - \lambda I) &= \det
+\begin{bmatrix}
+a - \lambda & b \\
+c & d - \lambda
+\end{bmatrix} \\
+&= (a - \lambda) (d - \lambda) - b c \\
+&= ad - (a + d) \lambda - ad - bc \\
+&= \lambda^2 - \tr A \lambda + \det A.
+\end{split}
+\end{equation*}
+
+Setting $\lambda^2 - \tr A \lambda + \det A = 0$ and using the quadratic formula we can solve for $\lambda$,
+
+\begin{equation*}
+\lambda = \frac{\tr A \mp \sqrt{(\tr A)^2 - 4 \det A}}{2}.
+\end{equation*}
+
+The type of eigenvalues for $A$ will depend on the value of $(\tr A)^2$ and $4 \det A$. We can use this information to classify the phase diagrams of any $2 \times 2$ linear system.
+
+\begin{tikzpicture}[line cap=round,line join=round]
+  % Main diagram
+  \draw[line width=1pt,->] (0,-0.3) -- (0, 4.7) coordinate (+y);
+  \draw[line width=1pt,->] (-5,0) -- ( 5,0) coordinate (+x);
+  \draw[line width=1pt, domain=-4:4] plot (\x, {0.25*\x*\x});
+  \node at (+y) [label={[above,yshift=0.8cm]%
+    {\sffamily\large Poincar\'e Diagram: Classification of Phase Portaits
+     in the $(\det A,\Tr A)$-plane}}] {};
+  \node at (+x) [label={[right,yshift=-0.5ex]$\scriptstyle\Tr A$}] {}; 
+  \node at (+y) [label={[above]$\scriptstyle\det A$}] {};
+  \node at (-4,4) [pin={[above]$\scriptstyle\Delta=0$}] {};
+  \node at ( 4,4) [pin={[above,align=left]{%
+    $\scriptstyle\Delta=0$:\\
+    $\scriptstyle\det A=\frac{1}{4}(\Tr A)^2$}}] {};
+  % inlays
+  \node at (0,-1.4) {\inlay\saddle};
+  \node at (0,1.2)
+    [pin={[draw,right,xshift=0.3cm]\inlay\centre}] {};
+  \node at (0,0)
+    [pin={[draw,above left,align=center,xshift=-0.3cm]%
+    \inlaycaption{uniform}\\[-1ex]\inlaycaption{motion}}] {};
+  \node at (-4,1) {\inlay\sink};
+  \node at ( 4,1) {\inlay\source}; 
+  \node at (-3,0) [pin={[draw,below,yshift=-1cm]\inlay\stablefp}] {};
+  \node at  (3,0) [pin={[draw,below,yshift=-1cm]\inlay\unstablefp}] {};
+  \node at (-1.8,3.7) {\inlay\spiralsink};
+  \node at ( 1.8,3.7) {\inlay\spiralsource};
+  \node at (-3.5,{0.25*3.5*3.5})
+    [pin={[draw,left,xshift=-1.15cm,yshift=-0.3cm]\inlay\degensink}] {};
+  \node at ( 3.5,{0.25*3.5*3.5})
+    [pin={[draw,right,xshift=0.9cm,yshift=-0.3cm]\inlay\degensource}] {};
+\end{tikzpicture}
+
+
+\section{Diagonalization of $n \times n$ matrices}
+
+\subsection{Jordan Canonical Decomposition}
+
+\begin{theorem}
+Let $A$ be a real matrix with real eigenvalues $\lambda_j$, $j = 1, \dots , k$ and complex eigenvalues 
+$\lambda_j = a_j + ib_j$, $j = k+1, \ldots, n$. Then there exists a basis $\{v_1, \ldots, v_k, u_{k+1}v+{k+1}, \ldots, u_n v_n \}$
+where $v_j$, $j = 1, \ldots, k$ and $w_j$, $j = 1, \ldots, n$ are generalized eigenvalues of $A$ with $u_j = Re(w_j)$
+and $v_j = Im(w_j)$, $j = k+1, \ldots, n$ such that $P = [v_1 \ldots v_k \quad v_{k+1}u_{k+1} \ldots v_n u_n]$ is invertible
+and 
+
+\begin{equation*}
+P^{-1} A P = 
+\begin{bmatrix}
+B_1 & 0 & \dots & 0 \\
+0 & \ddots & 0 & 0 \\
+0 & \dots & \ddots & 0 \\
+0 & 0 & \dots & B_r
+\end{bmatrix}
+\end{equation*}
+\end{theorem}
+
+where $B_j$ are Jordan blocks of the form
+
+\begin{equation*}
+\begin{bmatrix}
+\lambda & 1      & 0       &  0 & 0 & 0\\
+0       & \ddots & \ddots  &  0 & 0 & 0 \\
+0       & 0      & \ddots  & \ddots & 0  & 0\\
+0       & 0      & 0       & \ddots &  \ddots & 0 \\
+0       & 0      & 0       & 0       & \lambda & 1
+\end{bmatrix}
+\end{equation*}
+
+for real $\lambda$ or
+
+\begin{equation*}
+\begin{bmatrix}
+D       & I_2      & 0       &  0 & 0 & 0\\
+0       & \ddots & \ddots  &  0 & 0 & 0 \\
+0       & 0      & \ddots  & \ddots & 0  & 0\\
+0       & 0      & 0       & \ddots &  \ddots & 0 \\
+0       & 0      & 0       & 0       & D & I_2
+\end{bmatrix}
+\end{equation*}
+
+where $D = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$ and $I_2 = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$ for complex
+eigenvalues. Jordan form is unique up to the order of the blocks. 
+
+
+\begin{example}
+Consider a $5 \times 5$ matrix with 1 real and distinct eigenvalue, 1 real and repeated eigenvalue, and 1 complex conjugate
+pair of eigenvalues. Then the Jordan form is
+
+\[
+\left[
+\begin{array}{c|cc|cc}
+\lambda_1 &     0      & 0         & 0      & 0 \\ \hline
+0         & \lambda_2  & 1         & 0      & 0 \\
+0         & 0          & \lambda_2 & 0      & 0 \\ \hline
+0         & 0          & 0         & \alpha & \beta \\
+0         & 0          & 0         & -\beta & \alpha
+\end{array}
+\right]
+\]
+
+where $B_1$ is $1 \times 1$, $B_2$ is $2 \times 2$, and $B_3$ is $2 \times 2$ so that
+
+\begin{equation*}
+P^{-1}AP =
+\begin{bmatrix}
+B_1 & 0 & 0 \\
+0 & B_2 & 0 \\
+0 & 0 & B_3
+\end{bmatrix}
+.
+\end{equation*}
+\end{example}
+
+\subsection{Examples of Jordan blocks}
+
+\subsubsection{$2 \times 2$ matrices}
+
+\begin{enumerate}
+\item Real and distinct eigenvalues
+
+\[
+\begin{bmatrix}
+\lambda_1 & 0 \\
+0 & \lambda_2
+\end{bmatrix}
+\]
+
+\item Real, repeated eigenvalues with algebraic and geometric multiplicity 2
+
+\[
+\begin{bmatrix}
+\lambda_1 & 0 \\
+0 & \lambda_1
+\end{bmatrix}
+\]
+
+\item Real, repeated eigenvalues with algebraic multiplicity 2 and geometric multiplicity 1
+
+
+\[
+\begin{bmatrix}
+\lambda_1 & 1 \\
+0 & \lambda_1
+\end{bmatrix}
+\]
+
+\item pair of complex conjugate eigenvalues
+
+\[
+\begin{bmatrix}
+\alpha & \beta \\
+\beta & \alpha
+\end{bmatrix}
+\]
+
+\end{enumerate}
+
+\subsubsection{$3 \times 3$ matrices}
+
+\begin{enumerate}
+\item real and distinct eigenvalues
+
+\[
+\begin{bmatrix}
+\lambda_1 & 0 & 0 \\
+0 & \lambda_2 & 0 \\
+0 & 0 & \lambda_3
+\end{bmatrix}
+\]
+
+\item real and repeated eigenvalues with algebraic and geometric multiplicity of 3
+
+\[
+\begin{bmatrix}
+\lambda_1 & 0 & 0 \\
+0 & \lambda_1 & 0 \\
+0 & 0 & \lambda_1
+\end{bmatrix}
+\]
+
+\item real and repeated eigenvalues with algebraic multiplicity 3 and geometric multiplicity 2 
+
+\[
+\begin{bmatrix}
+\lambda_1 & 1 & 0 \\
+0 & \lambda_1 & 0 \\
+0 & 0 & \lambda_1
+\end{bmatrix}
+\]
+
+\item real and repeated eigenvalues with algebraic multiplicity 3 and geometric multiplicity 1
+
+\[
+\begin{bmatrix}
+\lambda_1 & 1 & 0 \\
+0 & \lambda_1 & 1 \\
+0 & 0 & \lambda_1
+\end{bmatrix}
+\]
+
+\item two real eigenvalues and one repeated with algebraic multiplicity 2 and geometric multiplicity 1
+
+ 
+\[
+\begin{bmatrix}
+\lambda_1 & 0 & 0 \\
+0 & \lambda_2 & 1 \\
+0 & 0 & \lambda_2
+\end{bmatrix}
+\]
+
+\item two real eigenvalues and one repeated with algebraic multiplicity and geometric multiplicity 2
+
+\[
+\begin{bmatrix}
+\lambda_1 & 0 & 0 \\
+0 & \lambda_2 & 0 \\
+0 & 0 & \lambda_2
+\end{bmatrix}
+\]
+
+\item one real eigenvalues and one complex conjugate pair of eigenvalues
+
+\[
+\begin{bmatrix}
+\lambda_1 & 0 & 0 \\
+0 & \alpha & \beta \\
+0 & -\beta & \alpha
+\end{bmatrix}
+\]
+\end{enumerate}
+
+\section{Exponentials of operators}
+
+If we have the initial value problem $\dot x = ax$ with $x(0) = x_0$ and $a \in \mathbb{R}$ then we know the solution is $x(t) = x_0 e^{at}$. Now
+what if we consider the linear system $\dot x = Ax$ with $x(0) = x_0$ but now $x \in \mathbb{R}^2$ and $A \in \mathbb{R}^{2 \times 2}$. It would
+be nice if we could write the solution as $x(t) = e^{At} x_0$, but what is $e^{At}$?
+
+\begin{definition} Operator Norm.
+Let $T: \mathbb{R}^n \rightarrow \mathbb{R}^n$ be a linear operator. Then the \textit{operator norm} of $T$ is defined to be
+
+\begin{equation*}
+|| T || = \max_{|x| \leq 1} \left| T(x) \right|
+\end{equation*}
+
+where $|\cdot|$ denotes the Euclidean norm for $x \in \mathbb{R}^n$.
+\end{definition}
+
+The operator norm has the following properties:
+
+\begin{enumerate}[label=(\alph*)]
+\item $|| T || > 0$ and $|| T || = 0$ if and only if $T = 0$.
+\item $|| kT || = |k| || T ||$ for $k \in \mathbb{R}$.
+\item $|| S + T || \leq ||S|| + ||T||$
+\end{enumerate}
+
+If $T \in \LO(\mathbb{R}^n)$ is represented by a matrix $A$ with respect to the standard basis in $\mathbb{R}^n$ then
+$|| A || \leq \ell \sqrt{n}$ where $\ell$ is the maximum length of the rows of $A$.
+
+\begin{definition} Convergence.
+A sequence of linear operators $T_k \in \LO(\mathbb{R}^n)$ converges to a linear operator $T \in \LO(\mathbb{R}^n)$ as
+$k \rightarrow \infty$ if $\lim_{k \rightarrow \infty} T_k = T$, i.e.,
+
+\[
+\forall \epsilon > 0 \exists N \in \mathbb{N} \text{ such that } k \geq N \implies || T_k - T || < \epsilon .
+\] 
+
+\end{definition}
+
+\begin{lemma}
+For $S, T \in \LO(\mathbb{R}^n)$ and $x \in \mathbb{R^n}$
+\begin{enumerate}
+\item $|T(x)| \leq ||T|| |x|$
+\item $|| TS || \leq ||T|| ||S||$
+\item $|| T^k || \leq (||T||)^k$ for $k = 0, 1, 2, \ldots$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\begin{enumerate}
+\item True for $x = 0$. Assume $x \neq 0$ and define $y = \frac{x}{|x|}$. Then 
+\[
+||T|| \geq |T(y)| = \frac{1}{|x|} |T(x)|.
+\]
+
+\item For $|x| < 1$, $1.$ implies
+\[
+\begin{split}
+|T(S(x))| &\leq ||T|| |S(x)| \\
+&\leq ||T|| ||S|| |x|.
+\end{split}
+\]
+
+\item Follows from $2.$ (by induction)
+\end{enumerate}
+\end{proof}
+
+
+\begin{definition} Weierstrass M-test.
+Suppose that $f_n$ is a sequence of real or complex valued functions defined on a set $A$ and that there is a sequence
+of non-negative numbers $M_n$ such that $|f_n(x)| \leq M_n$ for all $n \geq 1$ and for all $x \in A$ and
+$\displaystyle \sum^{\infty}_{n = 1} M_n$ converges then $\displaystyle \sum^{\infty}_{n=1} f_n(x)$ converges
+uniformly and absolutely.
+
+\end{definition}
+
+\begin{theorem}
+Given $T \in \LO(\mathbb{R}^n)$ and $t_0 > 0$, the series $\displaystyle \sum^{\infty}_{k=0} \dfrac{T^k t^k}{k!}$
+is absolutely and uniformly convergent for all $|t| \leq t_0$.
+\end{theorem}
+
+\begin{proof}
+Let $||T|| = a$. Then
+
+\begin{equation*}
+\left|\left| \dfrac{T^k t^k}{k!} \right|\right| \leq \dfrac{||T||^k |t|^k}{k!} \leq \dfrac{a^k t_{0}^{k}}{k!}.
+\end{equation*}
+
+So $\displaystyle \sum^{\infty}_{k=0} \dfrac{a^k t_{0}^{k}}{k!} = e^{at_0}$. By Weierstrass M-test 
+$\displaystyle \sum^{\infty}_{k=0} \dfrac{T^k t^k}{k!}$ is absolutely and uniformly convergent.
+\end{proof}
+
+So we define the exponential of the linear operator $T$ to be the absolutely convergent series
+
+\[ e^T = \sum^{\infty}_{k = 0} \dfrac{T^k}{k!} \]
+
+only for square matrices. Thus $e^T$ is a linear operator. It follows that
+
+\[ ||e^T|| \leq e^{||T||}. \]
+
+\begin{lemma}
+Let $A \in \mathbb{R}^n$. Then $\dfrac{d}{dt} e^{At} = A e^{At}$.
+\end{lemma}
+
+\begin{proof}
+Since $A$ commutes with itself,
+
+\begin{equation*}
+\begin{split}
+\dfrac{d}{dt} e^{At} &= \lim_{h \rightarrow 0} \dfrac{e^{A(t-h)} - e^{At}}{h} \\
+&= \lim_{h \rightarrow 0} e^{At} \left( \dfrac{e^{Ah} - I}{h} \right) \\
+&= e^{At} \lim_{h \rightarrow 0} \dfrac{1}{h} \lim_{k \rightarrow \infty} \left( I + Ah + \dfrac{(Ah)^2}{2} + \cdots + \dfrac{(Ah)^k}{k!} - I \right) \\
+&= e^{At} \lim_{h \rightarrow 0} \dfrac{1}{h} \lim_{k \rightarrow \infty} \left( Ah + \dfrac{(Ah)^2}{2} + \cdots + \dfrac{(Ah)^k}{k!} \right) \\
+&= e^{At} \lim_{h \rightarrow 0} \lim_{k \rightarrow \infty} \left( A + \dfrac{A^2h}{2} + \dfrac{A^h h^{k -1}}{k!} \right) \\
+&= e^{At} \lim_{k \rightarrow \infty} \lim_{h \rightarrow 0} \left( A + \dfrac{A^2h}{2} + \dfrac{A^h h^{k -1}}{k!} \right) \\
+&= e^{At} \lim_{k \rightarrow} A \\
+&= e^{At} A \\
+&= A e^{At}
+\end{split}
+\end{equation*}
+\end{proof}
+
+\begin{remark}
+In the last line of the above proof we switched $A$ from the right to the left side because $A$ commutes with itself. Therefore
+
+\begin{equation*}
+\begin{split}
+A e^{At} &= A(I + At + \dfrac{1}{2!} (At)^2 + \cdots \\
+&= A + A^2 t + \dfrac{1}{2!} A^2 t^2 + \cdots \\
+&= (I + At + \dfrac{1}{2!}(At)^2 + \cdots)A \\
+&= e^{At}A
+\end{split}
+\end{equation*}
+\end{remark}
+
+Also from the third to fourth equality we switched the limits because we have uniform convergence.
+
+\begin{lemma}
+If $S$ and $T$ are linear transformations on $\mathbb{R}^n$ which commute, i.e., $ST = TS$, then $e^{S+T} = e^S e^T$.
+\end{lemma}
+
+\begin{proof}
+If $ST = TS$ then by the binomial theorem
+
+\begin{equation*}
+(S + T)^n = n \sum_{j + k = n} \dfrac{S^j T^k}{j! k!}.
+\end{equation*}
+
+Therefore 
+
+\begin{equation*}
+e^{S + T} = \sum^{\infty}_{n = 0} \sum_{j + k = n} \dfrac{S^j T^k}{j!k!} = \left( \sum^{\infty}_{j = 0} \dfrac{S^j}{j!} \right)
+\left( \sum^{\infty}_{k = 0} \dfrac{T^k}{k!} \right) = e^S e^T.
+\end{equation*}
+\end{proof}
+
+\begin{remark}
+In the second equality above we were able to split the double sum because we have absolute convergence.
+\end{remark}
+
+\begin{theorem}
+Let $A$ be an $n \times n$ matrix, then for a given $x_0 \in \mathbb{R}^n$, the initial value problem $\dot x = A$ with $x(0) = x_0$ has the
+solution $x(t) = e^{At}x_0$.
+\end{theorem} 
+
+\begin{proof}
+If $x(t) = e^{At}x_0$ then $x(t) = Ae^{At}x_0 = Ax(t)$, and $x(0) = Ix_0 = x_0$. Now to show this solution is unique set $y(t) = e^{-At}x(t)$. Then
+
+\begin{equation*}
+\begin{split}
+y^{\prime} &= -Ae^{-At}x(t) + e^{-At}x^{\prime}(t) \\
+&= -Ae^{-At}x(t) + e^{-At}Ax(t) = 0.
+\end{split}
+\end{equation*}
+ Thus $y^{\prime}(t) = 0$ and so $y$ must be a constant,
+say $y(t) = x_0$. Then $e^{-At}x(t) = x_0$ and so $x(t) = e^{At}x_0$. Therefore $x(t) = e^{At}x_0$ is unique solution to $\dot x = Ax$.
+\end{proof}
+
+\begin{proposition}
+If $P$ and $T$ are linear transformations on $\mathbb{R}^n$ and $S = PTP^{-1}$ then $e^S = P e^{T} p^{-1}$.
+\end{proposition}
+
+\begin{proof}
+By definition
+
+\begin{equation*}
+\begin{split}
+e^S &= \lim_{n \rightarrow \infty} \sum^{n}_{k = 0} \dfrac{(PTP^{-1})}{k!} \\
+&= \left( I + \dfrac{PTP^{-1}}{1} + \dfrac{PTP^{-1})^2}{2!} + \dfrac{(PTP^{-1})^3}{3!} + \cdots \right) \\
+&= P \left( I + T + \dfrac{T^2}{2} + \dfrac{T^3}{3} + \cdots \right)P^{-1} \\
+&= Pe^{T}P^{-1}.
+\end{split}
+\end{equation*}
+\end{proof}
+
+\begin{remark}
+In the above proof to go from the second to third equality note that $I = PP^{-1}$ so that
+
+\begin{equation*}
+\begin{split}
+(PTP^{-1})^2 &= (PTP^{-1})(PTP^{-1}) \\
+&= PTP^{-1}PTP^{-1} \\
+&= PTTP^{-1} \\
+&= PT^2P^{-1}
+\end{split}
+\end{equation*}
+
+and 
+
+\begin{equation*}
+\begin{split}
+(PTP^{-1})^3 &= (PTP^{-1})(PTP^{-1})(PTP^{-1}) \\
+&= PTP^{-1}PTP^{-1}PTP^{-1} \\
+&= PTTTP^{-1} \\
+&= PT^3P^{-1}
+\end{split}
+\end{equation*}
+\end{remark}
+
+\section{Generalized Eigenspaces}
+
+If $PAP^{-1} = \text{ diag}[\lambda_j]$ then $e^{At} = P \text{diag}(e^{\lambda_j t})P^{-1}$ where 
+$\text{diag}(e^{\lambda_j t}) = \begin{bmatrix} e^{\lambda_1 t} & 0 \\ 0 & e^{\lambda_2 t} \end{bmatrix}$
+for a $2 \times 2$ linear system.
+
+If $A = \begin{bmatrix} \lambda_1 & 0 \\ 0 & \lambda_2 \end{bmatrix}$ then 
+
+\begin{equation*}
+\begin{split}
+e^{At} &= I + At + \dfrac{1}{2!} (At)^2 + \dfrac{1}{3!} (At)^3 + \cdots \\
+&=
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}
++
+\begin{bmatrix}
+\lambda_1 & 0 \\
+0 & \lambda_2 
+\end{bmatrix}
++ 
+\dfrac{1}{2!}
+\begin{bmatrix}
+\lambda_1^2 t^2 & 0 \\
+0 & \lambda_2^2 t^2
+\end{bmatrix}
++ \cdots \\
+&= 
+\begin{bmatrix}
+1 + \lambda_1 t + \dfrac{1}{2!} (\lambda_1^2 t^2) + \cdots & 0 \\
+0 & 1 + \lambda_2 t + \dfrac{1}{2!}(\lambda_2^2 t^2) + \cdots
+\end{bmatrix} \\
+&= 
+\begin{bmatrix}
+e^{\lambda_1 t} & 0 \\
+0 & e^{\lambda_2 t}
+\end{bmatrix}
+\end{split}
+.
+\end{equation*}
+
+Let $P = [v_1 \ldots v_n]$ where $v_1 \ldots v_2$ are the eigenvectors of $A$. Thus $P$ is non-singular and so $P^{-1}$ exists.
+
+Now for a $2 \times 2$ linear system
+
+\begin{equation*}
+\begin{split}
+A
+\begin{bmatrix}
+v_1 & v_2
+\end{bmatrix}
+&=
+\begin{bmatrix}
+Av_1 & Av_2
+\end{bmatrix}
+\\
+&=
+\begin{bmatrix}
+\lambda_1 v_1 & \lambda_2 v_2
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+v_1 & v_2
+\end{bmatrix}
+\begin{bmatrix}
+\lambda_1 & 0 \\
+0 & \lambda_2
+\end{bmatrix}
+\end{split}
+.
+\end{equation*}
+
+So $AP = A \Lambda$ which implies that $\Lambda = P^{-1}AP$ and then we say that $A$ is diagonalizable or semi-simple.
+
+We say that going from $A \rightarrow P^{-1}AP$ is a similarity transform.
+
+Consider $\dot x = Ax$. Consider $Py = x$ which implies $y = P^{-1}x$. Then
+
+\[
+\dfrac{dy}{dt} = P^{-1} \dfrac{dy}{dt} = P^{-1}Ax = P^{-1}APy.
+\]
+
+So $\dfrac{dy}{dt} = P^{-1}APy$ if $A$ is diagonal $\Lambda$.
+
+Then
+
+\[
+\dfrac{dy}{dt} = \begin{bmatrix} \lambda_1 & 0 \\ 0 & \lambda_2 \end{bmatrix} y
+\]
+
+and so 
+
+\begin{align*}
+\dfrac{dy_1}{dt} &= \lambda_1 y_1 \\
+\dfrac{dy_2}{dt} &= \lambda_2 y_2
+\end{align*}
+
+and our solution is $y(t) = e^{\Lambda t}c$ and then we transform back to $x$ to find that $x(t) = Py = Pe^{\Lambda t} c$.
+
+\subsection{Non-diagonalizable matrices}
+
+Not all matrices are diagonalizable, such as ones with repeated eigenvalues. For example, if the characteristic equation of a
+matrix is $(\lambda - 1)^2 (\lambda - 2)^5 = 0$ then $\lambda_1 = 1$ has an algebraic multiplicity of 2 and $\lambda = 2$ has
+an algebraic multiplicity of 5. To find $\lambda$ we solve the equation $(\det (A - \lambda I) = 0$ and so we find the 
+values of $\lambda$ that make $(A-\lambda I)$ singular and hence $(A-\lambda I)$ has a nontrivial nullspace.
+
+The eigenvector is then exactly the nullspace of $(A - \lambda I)$. When the algebraic and geometric multiplicity of an
+eigenevalue are we say there is a deficiency and we need a generalized eigenvector.
+
+\begin{definition} Invariant space.
+A space $E$ is invariant under an operator $T$ if for every $v \in E$ it follows that $T(v) \in E$.
+\end{definition} 
+
+\begin{definition} Generalized eigenspace.
+Consider $T : E \rightarrow E$, with eigenvalues and eigenvector pair where $v \in \ker (T - \lambda I)$.
+
+Suppose $\lambda_k$ is an eigenvalue of a linear operator $T$ with algebraic multiplicity $n_k$. The
+\textit{generalized eigenspace} of $\lambda_k$ is
+
+\[
+E_k := \ker \left[ (T - \lambda_k I)^{n_k} \right].
+\]
+\end{definition}
+
+The generalized eigenspace is an invariant subspace.
+
+\begin{remark}
+For a $2 \times 2$ linear system that has a saddle phase portrait, the x-axis is an invariant subspace. If you start on the x-axis
+and apply the operator $T$ you stay on the x-axis.
+\end{remark}
+
+\begin{theorem}
+Each of the generalized eigenspaces $E_j$ of a linear operator $T$ is invariant under $T$, that is, if $E_j$ is a generalized
+eigenspace, then $T : E_j \rightarrow E_j$.
+\end{theorem}
+
+\begin{proof}
+Suppose $v \in E_j$, so $(T - \lambda_j I )^{n_{j}})v = 0$. We want to show that $Tv \in E_j$. Compute
+
+\begin{equation*}
+\begin{split}
+(T - \lambda_j I)^{n_{j}} Tv &= (T - \lambda_j I)^{n_{j}} Tv - \lambda_j (T - \lambda_j I)^{n_{j}} v \\
+&= (T - \lambda_j I)^{n_{j}} [Tv - \lambda_j v] \\
+&= (T - \lambda_j I)^{n_{j}} (T - \lambda_j I)v \\
+&= (T - \lambda_j I) (T - \lambda_j I)^{n_{j}} v \\
+&= 0.
+\end{split}
+\end{equation*}
+
+Therefore, whenever $v \in E_j$ then $Tv \in E_j$ and so $E_j$ is invariant under $T$.
+
+\end{proof}
+
+
+\begin{remark}
+In the above proof for the first equality we can subtract $\lambda_j (T - \lambda_j I)^{n_{j}} v$ because $v \in E_j$ 
+which means that $(T - \lambda_j I)^{n_{j}} v = 0$. In the second equality we pull out $(T - \lambda_j I) ^{n_j}$ to the left.
+Then in the last equality we can switch the order of $(T - \lambda_j I)^{n_j}$ and $(T - \lambda_j I)$ because it commutes
+with itself.
+\end{remark}
+
+\begin{theorem}
+Let $T$ be a linear operator on a complex vector space $E$ with distinct eigenvalues $\lambda_1 \ldots \lambda_r$ and let
+$E_j$ be the generalized eigenspaces of T with eigenvalue $\lambda_j$. Then the $\text{dim}(E_j)$ is the algebraic
+multiplicity of $\lambda_j$ and the generalized eigenvectors span $E$,
+
+\begin{equation*}
+E = E_1 \oplus E_2 \oplus \cdots \oplus E_r.
+\end{equation*}
+\end{theorem}
+
+
+\begin{example}
+Consider the $3 \times 3$ system where
+
+\[
+A =
+\begin{bmatrix}
+6 & 2 & 1 \\
+-7 & -3 & -1 \\
+-11 & -7 & 0
+\end{bmatrix}.
+\]
+
+The characteristic polynomial of $A$ is $(\lambda - 2)^2 (\lambda + 1)$. Setting this polynomial equal to zero and solving for
+$\lambda$ we find that $\lambda_2 = 2$ with algebraic multiplicity of 2 and $\lambda_1 = -1$ with algebraic multiplicity 1. To
+find the eigenvector associated with $\lambda_1 = 2$ we solve $(A - \lambda_2 I)v_2 = 0$ for $v_2$ and find that
+$v_2 = \begin{bmatrix} -1 \\ 1 \\ 3 \end{bmatrix}$. Likewise, we solve $(A - \lambda_1 I) v_1 = 0$ for $v_1$ and find that
+$v_1 = \begin{bmatrix} -1 \\ 1 \\ 2 \end{bmatrix}$. Now to find $v_3$ we must find a generalized eigenvector since there is
+a deficiency for $\lambda_1$ (i.e., the algebraic and geometric multiplicities are different). To find the generalized
+eigenvector we need to solve $(A - \lambda_2 I)^2 v_3 = 0$. Solving the previous equation for $v_3$ we find that
+$v_3 = \begin{bmatrix} 1 \\ -1 \\ 0 \end{bmatrix}$.
+\end{example}
+
+\begin{remark}
+To find the generalized eigenvector in the previous example we could have also solved $(A - \lambda_2 I)v_3 = v_2$ for $v_3$. 
+This is because we know $(A - \lambda_2 I) v_1 = 0$ and $(A - \lambda_2 I)^2 v_3 = 0$. Therefore
+
+\[
+(A - \lambda_1 I )^2 v_3 = (A - \lambda I) v_1 = 0.
+\]
+\end{remark}
+
+
+\section{Semi simple Nilpotent Decomposition}
+
+\begin{definition} Nilpotent.
+Let $N$ be an $n \times n$ matrix. Then $N$ is \textit{nilpotent} if there exists a $k \in \mathbb{N}$ such
+that $N^k = 0$.
+\end{definition}
+
+
+\begin{definition}
+Let $A$ be on $n \times n$ matrix with generalized eigenvalues $v_1 \ldots v_n$ and $P = [v_1 \ldots v_n]$, where $P$ is
+non-singular since the $v$'s are linearly independent. Let $\Lambda = \text{diag}(\lambda_1 \ldots \lambda_n)$ and
+define $S = P \Lambda P^{-1}$ with $Sv_i = \lambda_i v_i$. Then $S$ is \textit{semisimple} if there is 
+a nonsingular matrix $P$ such that $P^{-1}SP = \Lambda$. Then $A = S + N$, where $N$ is nilpotent.
+\end{definition}
+
+\begin{lemma}
+Let $N = A - S$ where $S = P \Lambda P^{-1}$. Then $N$ commutes with $S$ and is nilpotent with order
+at most the maximum of the algebraic multiplicity of the eigenvalues of $A$.
+\end{lemma}
+
+\begin{definition} Commuting matrices.
+We say that the matrices $S$ and $S$ commute if $SN = NS$ or if their commutator $[S, N] = SN - NS$ is 
+equal to zero. 
+\end{definition}
+
+\begin{proof}
+Consider $[S,N] = [S, A-S] = [S, A] - [S, S] = [S, A]$. For any $v \in E_j$ we have $Sv = \lambda_j v$
+and 
+\begin{equation*}
+\begin{split}
+[S, A] v &= SAv - ASv \\
+&= SAv - A\lambda_j v \\
+&= (S - \lambda_j I) A v.
+\end{split}
+\end{equation*}
+
+Since the eigenspace $E_j$ is invariant then $Av \in E_j$ and $[S, A] v = (S - \lambda_j I) Av = 0$. Since
+$S$ has the same eigenvalues and eigenvectors as $A$ and $Av$ is in the null space of $A - \lambda_j I$, so
+$(S - \lambda_j I) Av = 0$. Note that since $Av$ is in the null space of $A - \lambda_j I$, then
+$(A - \lambda_j I) Av = 0$.
+
+Recall that $ E = E_1 \oplus E_2 \oplus \cdots \oplus E_r$ so any vector
+$\displaystyle \sum_{k = 1}^{n} \alpha_k v_k$, where $v_k \in E_k$ so $[S, A] w = 0$.
+
+Since this is true for any arbitrary vectors $w$, then $[S, A] = 0$. Since $[S, N] - [S, A] = 0$ then
+$[S, N] = 0$. So $S$ commutes with $N$.
+
+To see that $N$ is nilpotent, suppose the maximum algebraic multiplicity of the eigenvalues is $m$. Then
+for any $v \in E_j$, since $[S, A] = 0$,
+
+\begin{equation*}
+\begin{split}
+N^m v = (A-S)^m v &= (A - S)^{m-1} (A - S)v \\
+&= (A- S)^{m-1} (Av - \lambda_j v) \\
+&= (A - \lambda_j I) (A - S)^{m-1} v \\
+. \\
+. \\
+. \\
+&= (A - \lambda_j I)^m v = 0.
+\end{split}
+\end{equation*}
+
+Since this holds for all $v \in E$, then $N^m = 0$, so $N$ is nilpotent of order $m$.
+\end{proof}
+
+\begin{theorem}
+A matrix $A$ on a complex vector space $E$ has a unique decomposition $A = S + N$ where $S$
+is semisimple (or diagonalizable) and $N$ is nilpotent with $[S, N] = 0$.
+\end{theorem}
+
+\subsection{Now going back to ODEs...}
+
+\begin{enumerate}
+\item Start with $\dot x = Ax$ where $A \in \mathbb{R}^{n \times n}$.
+\item Find the (generalized) eigenvectors and eigenvalues of $A$.
+\item Construct $P = [v_1 \ldots v_n]$ and $\Lambda = \text{diag}\{\lambda_i \}$.
+\item Find $S = P \Lambda P^{-1}$.
+\item Find $N = A - S$.
+\item Then the general solution to $\dot x = Ax$ is
+
+\begin{equation*}
+\begin{split}
+x(t) &= e^{At}c \\
+&= e^{(S + N)t} c \\
+&= e^{St}e^{Nt}c \\
+&= e^{P \Lambda P^{-1}t} e^{Nt} c \\
+&= P \text{diag} \{ e^{\lambda_i t} \} P^{-1} (I + Nt + \dfrac{1}{2!} (Nt)^2 + \cdots \dfrac{1}{n!} N^m t^m) c \\
+\end{split}
+\end{equation*}
+\end{enumerate}
+
+
+
+\begin{example}
+Let $\dot x = Ax$ for $A = \begin{bmatrix} 2 & 1 \\ -1 & 4 \end{bmatrix}$. Then the characteristic equation is
+
+\begin{equation*}
+\det (A - \lambda I) =
+\begin{bmatrix}
+2 - \lambda & 1 \\
+-1 & 4 - \lambda
+\end{bmatrix}
+= (2 - \lambda)(4 - \lambda) - (-1) = \lambda^2 - 6 \lambda + 9.
+\end{equation*}
+
+
+
+Setting the characteristic equation equal to zero and solving for $\lambda$ we find that $\lambda = 3$. Now we 
+solve the system $(A - \lambda I) = 0$ to find the eigenvetors for $\lambda$. This is
+
+\begin{equation*}
+\begin{bmatrix}
+-1 & 1 \\
+-1 & 1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha_1 \\
+\alpha_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0
+\end{bmatrix}
+\end{equation*}
+
+which reduces to one equation
+
+\begin{equation*}
+-\alpha_1 + \alpha_2 = 0.
+\end{equation*}
+
+This implies that $\alpha_2 = \alpha_1$ and so we let $\alpha_1 = 1 = \alpha_2$ and therefore
+$\begin{bmatrix} 1 \\ 1 \end{bmatrix}$. Now we must find a generalized eigenvector because
+$\lambda = 3$ is a deficient eignevalue. To find a generalized eigenvector we solve
+$(A - \lambda I) v_2 = v_1$ for $v_2$. This equation can be written as
+
+\begin{equation*}
+\begin{bmatrix}
+-1 & 1 \\
+-1 & 1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha_1 \\
+\alpha_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 \\
+1
+\end{bmatrix}
+\end{equation*}
+
+which reduces to the equation $-\alpha_1 + \alpha_2 = 1$. Therefore, $\alpha_2 = \alpha_1 + 1$. If
+we set $\alpha_1 = 0$ then $\alpha_2 = 1$ and so $v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$. Thus
+
+\begin{equation*}
+\begin{bmatrix}
+1 & 0 \\
+1 & 1 
+\end{bmatrix}.
+\end{equation*}
+
+Now we find the matrix $S = P \Lambda P^{-1}$ where
+$\Lambda = \begin{bmatrix} 3 & 0 \\ 0 & 3 \end{bmatrix}$. To find $P^{-1}$ we have
+
+\begin{equation*}
+P = \dfrac{1}{\det{P}}
+\begin{bmatrix}
+2 & -1 \\
+-1 & 1
+\end{bmatrix}
+=
+\dfrac{1}{1}
+\begin{bmatrix}
+2 & -1 \\
+-1 & 1
+\end{bmatrix}.
+\end{equation*}
+
+Therefore we have that the matrix $S$ is
+
+\begin{equation*}
+S = P \Lambda P^{-1} =
+\begin{bmatrix}
+1 & 1 \\
+1 & 2
+\end{bmatrix}
+\begin{bmatrix}
+3 & 0 \\
+0 & 3
+\end{bmatrix}
+\begin{bmatrix}
+2 & -1 \\
+-1 & 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+3 & 0 \\
+0 & 3
+\end{bmatrix}.
+\end{equation*}
+
+Now we find the matrix $N$ as
+
+\begin{equation*}
+N = A - S = 
+\begin{bmatrix}
+2 & 1 \\
+-1 & 4
+\end{bmatrix}
+-
+\begin{bmatrix}
+3 & 0 \\
+0 & 3
+\end{bmatrix}
+=
+\begin{bmatrix}
+-1 & 1 \\
+-1 & 1
+\end{bmatrix}.
+\end{equation*}
+
+We know that $N$ is nilpotent of order 2 so that means that $N^2 = 0$. Now we can construct the 
+general solution of $\dot x = Ax$ as
+
+\begin{equation*}
+\begin{split}
+x(t) = e^{At}x_0 &= P e^{\Lambda t} P^{-1} e^{Nt} x_0 \\
+&= e^{3t} [I + Nt] x_0 \\
+&= e^{3t}
+\begin{bmatrix}
+1 - t & t \\
+-t & 1 + t
+\end{bmatrix}
+x_0.
+\end{split}
+\end{equation*}
+
+\end{example}
+
+
+
+
+\begin{example}
+Let $\dot x = Ax$ for $A = \begin{bmatrix} 1 & 0 & 0 \\ -1 & 2 & 0 \\ 1 & 1 & 2 \end{bmatrix}$ with $x(0) = x_0$. The
+eigenvalues for $A$ are $\lambda_1 = 1$ and $\lambda_2 = 2 = \lambda_3$. Then
+$v_1 = \begin{bmatrix} 1 \\ 1 \\ -2 \end{bmatrix}$ and $v_2 = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}$. Since
+$\lambda = 2$ is a deficient eigenvalue we need to find a generalized eigenvector. To do this we consider the equation
+$(A - 2I)^2 v_3 = 0$ and solve for $v_3$. Thus we have
+
+\[
+\begin{bmatrix}
+1 & 0 & 0 \\
+1 & 0 & 0 \\
+-2 & 0 & 0
+\end{bmatrix} v_3 = 0
+\]
+
+which implies that $v_3 = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}$. Now we create the matrix $P$ where the column vectors
+are the eigenvectors $v_1, v_2, v_3$. So
+
+\[
+P =
+\begin{bmatrix}
+1 & 0 & 0 \\
+1 & 0 & 0 \\
+-2 & 1 & 0
+\end{bmatrix}.
+\]
+
+Now we find the matrix $S$ as
+
+\[
+S = P\Lambda P^{-1} = P 
+\begin{bmatrix}
+1 & 0 & 0 \\
+0 & 2 & 0 \\
+0 & 0 & 2
+\end{bmatrix}
+P^{-1} = 
+\begin{bmatrix}
+1 & 0 & 0 \\
+-1 & 2 & 0 \\
+2 & 0 & 2
+\end{bmatrix}.
+\]
+
+The matrix $N$ is
+
+\[
+N = A - S =
+\begin{bmatrix}
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+-1 & 1 & 0
+\end{bmatrix}.
+\]
+
+Now we construct our solution of $\dot x = A x$ as
+
+\[
+\begin{split}
+x(t) &= P
+\begin{bmatrix}
+e^t & 0 & 0 \\
+0 & e^{2t} & 0 \\
+0 & 0 & e^{2t}
+\end{bmatrix}
+P^{-1} (I + Nt) x_0 \\
+&=
+\begin{bmatrix}
+e^{t} & 0 & 0 \\
+e^t - e^{2t} & e^{2t} & 0 \\
+-2e^t + (2 - t)e^{2t} & te^{2t} & e^{2t}
+\end{bmatrix}.
+\end{split}
+\]
+\end{example}
+
+\begin{theorem}
+If $2n \times 2n$ real matrix $A$ has $2n$ distinct complex eigenvalues $\lambda_j = a_j + ib_j$,
+$\bar \lambda = a_j - ib_j$ with complex eigenvectors $w_j = u_j + iv_j$ and $\bar w = u_j - iv_j$,
+then $P = [v_1 u_1 \quad v_2 u_2 \ldots v_n u_n]$ is a $2n \times 2n$ invertible matrix and
+$P^{-1}AP = \text{diag}
+\begin{bmatrix}
+a_j & -b_j \\
+b_j & a_j
+\end{bmatrix}$.
+\end{theorem}
+
+\begin{example}
+
+\end{example}
+
+
+\end{document}
