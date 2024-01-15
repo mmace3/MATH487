@@ -20,11 +20,20 @@
 \newcommand{\n}{ \noindent }
 \newcommand{\F}{\mathcal{F}}
 \newcommand{\G}{\mathcal{G}}
+\newcommand{\U}{\mathcal{U}}
 
 
 \newcommand{\pwset}{\mathcal{P}}
 %\newcommand{\pwset}{\mathscr{P}}
 \DeclareMathOperator{\LO}{\mathcal{L}}
+
+%https://tex.stackexchange.com/questions/22252/how-to-typeset-function-restrictions
+\newcommand\restr[2]{{% we make the whole thing an ordinary symbol
+  \left.\kern-\nulldelimiterspace % automatically resize the bar with \right
+  #1 % the function
+  \vphantom{\big|} % pretend it's a little taller at normal size
+  \right|_{#2} % this is the delimiter
+  }}
 
 % from https://tex.stackexchange.com/questions/644238/drawing-the-phase-portrait-of-two-differential-equations
 % \usepackage{pgfplots}
@@ -2202,7 +2211,471 @@ $x(t) = e^{At}x_0$.
 \end{theorem}
 
 \begin{proof}
-a
+First compute
+
+\[
+\begin{split}
+\dfrac{d}{dt} e^{At} &= \lim_{h \rightarrow 0} \dfrac{e^{(t + h)A} - e^{tA}}{h} \\
+&= \lim_{h \rightarrow 0} \left(\dfrac{e^{ht} - I}{h} \right) e^{tA} \\
+&= \lim_{h \rightarrow 0} \left( \dfrac{1}{h} \sum_{n = 1}^{\infty} \dfrac{(hA)^n}{n!} \right) e^{tA} \\
+&= \lim_{h \rightarrow 0} \left( \dfrac{hA}{h} + \sum_{n = 2}^{\infty} h^{n-1} \dfrac{A^n}{n!} \right) e^{At} \\
+&= \lim_{h \rightarrow 0} \left( A + h \sum_{j = 0}^{\infty} h^j \dfrac{A^{j + 2}}{(j+2)!} \right) e^{At} \\
+&= A e^{At}.
+\end{split}
+\]
+
+So $\dfrac{d}{dt} e^{At}x_0 = Ae^{At}x_0 = Ax$ and so $x(t) = e^{At}x_0$ is a solution. To show that $x(t)$ is unique,
+suppose $y(t)$ is also a solution. Then
+
+\[
+\begin{split}
+\dfrac{d}{dt} \left( e^{-At} y(t) \right) &= -Ae^{-At} y(t) + e^{-tA} A y(t) \\
+&= -Ae^{-tA} + e^{-tA}A y(t) \\
+&= 0.
+\end{split}
+\]
+
+Therefore $e^{-At}y(t) = y_0 = \text{ a constant}$ then $y(t) = e^{At}y_0$. Since $x_0 = y_0$ the solutions are the same,
+which is a contradiction.
+\end{proof}
+
+We consider a set of initial conditions $x_{j_{0}} = v_j$ for $j = 1 \ldots n$ with $v_j$ an arbitrary initial vector. Define
+$\Psi = [v_1 \ldots v_n]$ (an $n \times n$ matrix). Then the solution matrix is $\Psi(t) = [x_1(t) \ldots x_n(t)]$ with
+$x_j(t) = e^{At}v_j$.
+
+\begin{theorem}
+The matrix initial value problem $\dfrac{d}{dt} \Psi = A \Psi$ with $\Psi(0) = \Psi_0$ has the unique solution
+$\Psi(t) = e^{tA}\Psi(0)$. When $\Psi_0 = I$, $\Psi(t) = e^{At}$ is the fundamental solution matrix. 
+\end{theorem}
+
+\section{Linear Stability}
+
+Consider $\dot x = Ax$. If $\lambda > 0$ then $x(t) = c e^{\lambda t}$ grows unbounded. If $\lambda < 0$ then
+$x(t) = c^{\lambda t}$ goes to zero. In some sense, $\lambda > 0$ is unstable and $\lambda < 0$ is stable.
+
+\subsection{Spectral stability}
+
+\begin{definition} Spectral stability.
+A linear system is \textbf{spectrally stable} if none of the eigenvalues have a positive real part.
+\end{definition}
+
+If $\lambda_j = \alpha_j + \beta_j i$ with $v_j = u_j + i w_j$ then
+\[
+E^u = \text{span} \{u_j, w_j : \text{Re}(\lambda_j) > 0 \}
+\]
+is the unstable subspace,
+
+\[
+E^s = \text{span}\{u_j, w_j : \text{Re}(\lambda_j) < 0 \}
+\] 
+is the stable subspace,
+
+\[
+E^c = \text{span}\{u_j, w_j : \text{Re}(\lambda_j) = 0 \}
+\]
+
+is the center subspace, and
+
+\[
+E = E^u \oplus E^s \oplus E^c.
+\]
+
+Since the generalized eigenspaces are invariant so are the stable, unstable, and center subspace.
+
+\begin{example}
+Consider the linear system $\dot x = \begin{bmatrix} -1 & 0 \\ 0 & 2 \end{bmatrix} x$. The eigenvalues are
+$\lambda_1 = -1$ and $\lambda_2 = 2$ with associated eigenvectors $v_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$
+and $v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$. So in this example we have that 
+$E^u = \text{span}\{\begin{bmatrix} 0 \\ 1 \end{bmatrix} \}$, 
+$E^s = \text{span} \{ \begin{bmatrix} 1 \\ 0 \end{bmatrix} \}$, and $E^c = \varnothing$.
+\end{example}
+
+\begin{remark}
+In linear systems the terms manifold is the same as subspace but in non-linear systems there two terms are not
+equivalent.
+\end{remark}
+
+
+Construct a restriction of $A \big|_{E^{s}}$. If $P = [v_1 \ldots v_k]$ (an $n \times k$ matrix) is a basis
+for $E^u$ (so that $P$ contains all eigenvectors with eigenvalues that have positive real part) then
+
+\[
+x = \sum^{k}_{i=1} c_i v_i = PC \in E^u.
+\]
+
+Since $E^u$ is an invariant subspace, each column in $AP$ is in $E^k$. We define 
+$\U = \{ u_{ij} \} = A \big|_{E^{u}}$ is the $k \times k$ matrix that solves
+$AP = P\U$.
+
+The dynamics of $x \in E^u$ are determined by the dynamics of $C$. Since
+
+\[
+x = \sum^{k}_{i=1} c_i v_i = PC
+\]
+
+then 
+
+\[
+\begin{split}
+\dot x = P \dot C &= APC \\
+&= P \U C.
+\end{split}
+\]
+
+\begin{remark}
+s
+\end{remark}
+
+
+\begin{example}
+Consider $\dot x = Ax$ with
+
+\[
+A =
+\begin{bmatrix}
+-1 & 1 & -2 \\
+0 & -1 & 4 \\
+0 & 0 & 1 
+\end{bmatrix}.
+\]
+
+Now the eigenvalue/eigenvectors pairs for $A$ are $\lambda_3 = 1$ and 
+$v_3 = \begin{bmatrix} 0 \\ 2 \\ 1 \end{bmatrix}$, and $\lambda_1 = -1 = \lambda_2$ with
+$v_1 = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}$ and
+$v_2 = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}$. 
+
+
+
+\end{example}
+
+
+\begin{definition} hyperbolic system.
+A \textbf{hyperbolic system} is one where all the eigenvalues have non-zero real part.
+\end{definition}
+
+
+Give an example of a spectrally stable hyperbolic matrix.
+
+Consider the matrix
+
+\[
+\begin{bmatrix}
+-1 & 0 & 0 \\
+0 & -1 & 0 \\
+0 & 0 & -2
+\end{bmatrix}
+\]
+
+where all eigenvalues are negative, real, and nonzero. Thus this matrix is spectrally stable and hyperbolic.
+
+
+\begin{theorem}
+If $A$ is an $n \times n$ matrix and $x_0 \in E^S$, the stable subspace of $A$, then
+there are constants $K \geq 1$ and $\alpha > 0$ such that 
+$|e^{tA} x_0| \leq Ke^{-\alpha t}|x_0|$,  $\forall t \geq 0$. As a result
+$e^{tA}x_0 \rightarrow 0$ as $t \rightarrow \infty$.
+\end{theorem}
+
+
+\begin{proof}
+
+The general solution is 
+
+\[
+e^{tA}x_0 = P e^{t \Lambda} P^{-1} \left( \sum_{j = 0}^{n-1} \frac{(tN)^j}{j!} \right) x_0.
+\]
+
+Since $x_0 \in E^S$ and $E^S$ is invariant with dimension $n_S$, we consider $\restr{e^{At}}{E^S}$.
+Each element is a linear combination of stable eigenvectors with $t^k e^{a_j t} e^{ib_j t}$,
+$\lambda_j = a_j \pm ib_j$ with $a_j < 0$ and $k < n_S$.
+
+This restriction has nilpotency at most $n_k$, the algebraic multiplicity $\lambda_k$, which implies
+that the order of the polynomial in $t$ is $n_{k-1}$. So
+
+\[
+\left( \restr{e^{tA}}{E^S} \right)_{l_m} = \sum_{j = 1}^{n_S} \sum_{k = 0}^{n_j - 1} t^k e^{a_j t} (c_j k l_m \cos (b_j t) + d_j k l_m \sin (b_j t))
+\] 
+
+for some coefficients $c_j k l_m$ and $d_j k l_m$. Choose $\alpha > 0$ such that $a_j  < -\alpha < 0$. Then
+there exists a $K$ such that
+
+\[
+t^{n_s} e^{\alpha + a_j)t} \sqrt{c {j_k}^{2} l_m + d{j_k}^{2}l_m} < \frac{k}{n_S} 
+\]
+
+for all $j \in [1,n_S]$ and $lm \in [1,n]$, for all $t \geq 0$. So each term is bounded by
+$\frac{k}{n_S} e^{-\alpha t}$ which implies
+
+\[
+|e^{tA}x_0| \leq Ke^{-\alpha t}|x_0|
+\]
+
+for all $t \geq 0$. This implies that $e^{tA}x_0 \rightarrow 0$ as $t \rightarrow \infty$.
+\end{proof}
+
+A stronger concept of spectral stability is called \textbf{linear stability}.
+
+\subsection{Linear Stability}
+
+\begin{definition} \textbf{Linear stability}
+A linear system is \textbf{linearly stable} if all its solutions are bounded as $t \rightarrow \infty$.
+\end{definition}
+
+Any $x_0 \in E^S$ has bounded solutions for any $t > 0$.
+
+Any $x_0 \in E^U$ has unbounded solutions for $t \rightarrow \infty$.
+
+For $x_0 \in E^C$, all centers have bounded solutions, but solutions with $Re(\lambda_i) = 0$
+and with algebraic multiplicity $>$ algebraic multiplicity there can be unbounded solutions
+because of polynomial growth.
+
+\begin{remark}
+Does spectral stability imply linear stability? \textbf{No}, because of $x_0 \in E^C$ with
+$Re(\lambda_i) = 0$ with algebraic multiplicity $>$ algebraic multiplicity, which results
+in polynomial growth at $t \rightarrow \infty$.
+\end{remark} 
+
+\begin{remark}
+Does linear stability imply spectral stability? \textbf{Yes}.
+\end{remark}
+
+\subsection{Asymptotic Linear Stability}
+
+\begin{definition} Asymptotic Linear Stability
+A linear system is asymptotically linearly stable if all solutions approach 0 as $t \rightarrow \infty$.
+\end{definition}
+
+\begin{remark}
+If a system is asymptotically linearly stable then $E = E^S$.
+\end{remark}
+
+The following are true:
+\begin{enumerate}
+\item Asymptotic linear stability implies spectral stability
+\item Asymptotic linear stability implies linear stability
+\item Spectral stability does not imply asymptotic linear stability
+\end{enumerate}
+
+\begin{theorem}
+The $\lim_{t \rightarrow \infty} e^{At} x_0 = 0$ for all $x_0$ if and only if all eigenvalues
+of $A$ have negative real part.
+\end{theorem}
+
+\begin{proof}
+If all eigenvalues have negative real parts then $e^{tA} x_0 \rightarrow 0$ as 
+$t \rightarrow \infty$.
+
+Conversely, if there is an eigenvalue with positive real part then there is an
+initial condition in the eigenspace corresponding to the eigenvalue so that the
+solution grows without bound. Finally if there is an eigenvalue with 0 real part,
+then solutions in this subspace have terms of the form $t^j e^{i Im(\lambda_J) t}$
+and do not go to zero.
+\end{proof}
+
+\begin{example}
+Consider the system $\dot{x} = Ax$ where 
+
+\[
+A =
+\begin{bmatrix}
+-2 & -1 & -2 \\
+-2 & -2 & -2 \\
+2 & 1 & 2
+\end{bmatrix}.
+\]
+
+This matrix has characteristic equation $\lambda^3 + 2 \lambda^2 = 0$ and so
+$\lambda^2 (\lambda + 2) = 0$. Therefore, $\lambda = -2$ with algebraic
+multiplicity of 1 and $\lambda = 0$ with algebraic multiplicity of 2.
+
+Is this system:
+\begin{enumerate}
+\item spectrally stable? \textbf{Yes}
+\item hyperbolic? \textbf{No}
+\item linearly stable? \textbf{No}
+\item asymptotically stable? \textbf{No}.
+\end{enumerate}
+
+For this system, $E^S = \text{ span } \{ V_3 \}$ where $V_3$ is the eigenvector associated with $\lambda = -2$,
+$E^C = \text{ span } \{ V_1, V_2 \} = E \ E^S$, where $V_1$ and $V_2$ are eigenvectors associated with
+$\lambda = 0$, and there is no unstable subspace. The solution for this system is
+$e^{tA} = P e^{tA} P^{-1} (I + tN) = e^{0t}(a + bt) + ce^{-2t}$.
+\end{example}
+
+
+\section{Nonautonomous Linear Systems and Floquet Theory}
+
+Consider $\dot{x} = Ax + f(t)$ where $f(t)$ is for example, an impulse function.
+
+Floquet (1880) studied systems of this type with periodic functions $A(t + T) = A(t)$.
+
+Recall the fundamental solution matrix $\Phi(t, t_0)$ solves $\frac{d}{dt} \Phi = A \Phi$.
+Note that $\Phi(t, t_0) = \Phi$ when $x(t_0) = x_0$ is $x(t) = \Phi(t, t_0)x_0$.
+
+Recall $\varphi(t, v) = \varphi (t, s) \varphi(s, r)$ for all $s, t, r \in \mathbb{R}$.
+Therefore, it doesn't matter if you stop in the middle, you end up in the same place.
+
+Now recall that if $A$ is a constant then the solution to the linear system is $e^{At}$
+and so maybe when $A$ is nonconstant the solution is $e^{\int_{t_0}^t A(s)ds}$?
+\textbf{No}, this solution does not work for nonconstant $A$. This doesn't work
+because $A(s)$ doesn't necessarily commute with $A(t)$.
+
+\begin{example}
+Consider the example where
+\[
+A(t) =
+\begin{bmatrix}
+-1 + \alpha \cos^2 t & 1 - \alpha \cos t \sin t \\
+-1 - \alpha \cos t \sin t t & -1 + \alpha \sin^2 t
+\end{bmatrix}
+\]
+
+and so $A(2\pi + t) = A(t)$. The eigenvalues are $\lambda = 1/2 (\alpha - 2 \pm \sqrt{\alpha^2 - 4})$,
+which implies that when $\alpha <$, the real part of $\lambda$ is less than zero and so the
+system is stable.
+
+However, the solution of $\dot{x} = A(t)x$ is
+
+\[
+x_1(t) = 
+\begin{bmatrix}
+\cos t \\
+\sin t
+\end{bmatrix}
+e^{(\alpha - 1)t},
+\quad
+x_2(t) =
+\begin{bmatrix}
+\sin t \\
+\cos t
+\end{bmatrix}
+e^{-t}.
+\]
+
+Compare solution and stability conclusions.
+
+But for $\alpha > 1$, $x(t)$ is unbounded and the origin is unstable.
+\end{example}
+
+For the system $\dot{x} = Ax$ and for $A(t) = A(t + T)$, we defined the \textbf{monodromy matrix} $M = \varphi (T, 0)$.
+
+Then the solution after period $T$ for the initial value problem $x(0) = x_0$ is $x(T) = M_{x_{0}}$. 
+
+So what is $X(2T)$? $X(2T) = M^2 x_0$
+
+$X(T) = Mx_0$
+
+Now let $x_0 = M x_0$ and then what is the time $T$ map of the initial condition $M_{x_{0}}$?
+$M(Mx_0) = M^2 x_0 = X(2T)$.
+
+So we need to compute $M^n$. The eigenvalues of $M^n$ are called \textbf{floquet multipliers}. If
+$x$ is an eigenvector of $M$ with eigenvalue $\mu$ then
+
+\[
+x(nT) = \mu^n x_0 = e^{n \ln \mu} x_0
+\]
+
+where $\ln \mu$ is the \textbf{floquet exponent}.
+
+Now go back to the previous example.
+
+If $x_1(0) = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$ and $x_2(0) = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$ 
+then evaluating at $t = 2\pi$, given 
+\[
+M = \Phi (2\pi, 0) = 
+\begin{bmatrix}
+e^{2\pi (\alpha - 1)} & 0 \\
+0 & e^{-2\pi}
+\end{bmatrix}.
+\]
+
+The floquet multipliers are $\mu_1 = e^{2\pi (\alpha - 1)}$ and $\mu_2 = e^{-2\pi}$. So when
+$\alpha > 1$, then $2\pi(\alpha - 1) > 0$ and $-2\pi < 0$.
+
+\begin{theorem} (Abel)
+The determinant of the fundamental matrix is
+\[
+\det(\varphi(t, t_0)) = \text{exp} \left( \int_{t_0}^t \tr (A(s)) ds \right).
+\]
+\end{theorem}
+
+\begin{remark}
+This is a generalization of the Wronskian we saw in MATH 225
+\end{remark}
+
+\section{Logarithm of a Matrix}
+
+Floquet exponents are defined to be $\ln \mu_j$. So we can also define $\ln M$.
+
+Recall $\ln (1-x) = \displaystyle - \sum_{j = 1}^{\infty} \frac{x_j}{j}$, which
+converges when $|x| < 1$. Also note that $\ln M = \ln (I - (I - M))$, which
+converges when $||I - M|| \leq 1||$.
+
+\begin{lemma}
+Any nonsingular matrix $A$ has a not unique and possibly complex logarithm
+
+\[
+\ln A = P \ln \Lambda P^{-1} - \sum_{j = 1}^{n} \frac{(-S^{-1}N)^J}{j}
+\]
+
+where $A = S + N$, $S = P \Lambda P^{-1}$ is a diagonlizable, $N$ is nilpotent,
+$\Lambda$ is a diagonal matrix, $P$ is the matrix of generalized eigenvalues of $A$. 
+\end{lemma}
+
+\begin{proof}
+First consider a semisimple nonsingular matrix $S$, so there exists a $P$ such
+that $P^{-1}SP = \Lambda$, where $\Lambda$ is diagonal with nonzero but
+possibly complex entries. Define $\ln \Lambda = \text{ diag }(\ln \Lambda_{i,i})$,
+so we have $e^{\ln \Lambda}$ and 
+$S = P e^{\ln \Lambda} P^{-1} = \text{ exp } (P \ln \Lambda P^{-1})$.
+So $\ln S = P \ln \Lambda P^{-1}$ and so $\ln S$ exists for $S$ semisimple
+and nonsingular.
+
+Now let $N$ be nilpotent. Define
+
+\[
+B = - \sum_{j = 1}^{\infty} \frac{(-N)^j}{j} = - \sum_{j = 1}^{n-1} \frac{(-N)^j}{j}.
+\]
+
+Note that this infinite sum converges because it is equal to a finite sum and so is
+well defined. The equality holds because $N$ is nilpotent.
+
+\textbf{Claim:} $e^{B} = I + N$.
+
+\begin{align*}
+e^{B} &= \sum_{k = 0}^{\infty} \frac{1}{k!} \left( - \sum_{j = 1}^{\infty} \frac{(-N)^j}{j} \right)^k \\
+&= \sum_{k = 0}^{\infty} \frac{1}{k!} \left( N - \frac{N^2}{2} + \frac{N^3}{3} + \frac{N^4}{4} + \cdots \right)^k \\
+&= I + N
+\end{align*}
+
+Note that $[N^j, N^k] = 0$.
+
+So $B = \ln (I + N)$.
+
+In the general case $A = S + N = S(I + S^{-1}N)$. Note that $N = S^{-1}N$.
+
+Since $N$ is nilpotent $[S,N] = 0$ then $S^{-1}N$ is nilpotent because if $N^k = 0$ then
+$(S^{-1}N)^k = S^{-k}N^k = 0$. (because $N = 0$)
+
+$\ln A = \ln S + \ln(I + S^{-1}N)$
+
+Note that $[S, I + S^{-1}N] = 0$ so by definition $[\ln S, \ln (I + S^{-1}N)] = 0$.
+
+Then
+
+\[
+e^B = e^{\ln S + \ln (I + S^{-1}N)} = e^{\ln S} e^{\ln (I + S^{-1}N)} = S(I + S^{-1}N) = A.
+\]
+
+\end{proof}
+
+\begin{theorem}(Floquet 1883)
+Let $M$ be the monodromy matrix for a T-periodic linear system $\dot{x} = A(t)x$ and $TB = \ln M$. Then
+there exists a T-periodic matrix $P$ such that the fundamental solution is $\Phi (t, 0) = P(t)e^{tB}$.
+\end{theorem}
+
+\begin{proof}
+Let $\Psi (t) = \varphi(t + T, 0)$. Since $A$ is periodic, then  
 \end{proof}
 
 \end{document}
