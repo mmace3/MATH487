@@ -2675,7 +2675,68 @@ there exists a T-periodic matrix $P$ such that the fundamental solution is $\Phi
 \end{theorem}
 
 \begin{proof}
-Let $\Psi (t) = \varphi(t + T, 0)$. Since $A$ is periodic, then  
+Let $\Psi (t) = \varphi(t + T, 0)$. Since $A$ is periodic, then  $\frac{d\Psi}{dt} = A(t + T)\Psi = A(t)\Psi$
+with $\Psi(0) = M$. Since $\varphi$ is the fundamental solution matrix, every solution $\Psi(t)$ is of the
+form $\varphi(t, 0)x(0)$, so $\Psi(t) = \varphi(t, 0)M$ and $\varphi(t + T, 0) = \varphi(t, 0)M = \Psi(t,0)e^{TB}$.
+
+Since $e^{TB}$ is nonsingular, define $P(t) = \varphi(t, 0)e^{-tB}$ so that 
+
+\begin{align*}
+P(t + T) &= \varphi(t + T, 0)e^{-(t + T)B} \\
+&= \varphi(t,0)e^{TB}e^{-(t + T)B} \\
+&= \varphi(t, 0) e^{-tB} \\
+&= P(t). 
+\end{align*}
+
+Therefore $P$ is T-periodic. 
 \end{proof}
+
+\begin{theorem}
+Let $\varphi$ bet he fundamental solution matrix for the T-periodic linear system
+$\dot{x} = A(t)x$ with $x(t_0) = x_0$. Then there exists a real 2T-periodic matrix
+$A$ and a real matrix $R$ such that $\varphi(t, 0) = Q(t)e^{tR}$.
+\end{theorem}
+
+\begin{proof}
+For any nonsingular matrix $M$, there exists a real matrix $R$ such that $M^2 = e^{TR}$.
+Define $Q(t) = \varphi(t,0)e^{-tR}$. Then
+
+\begin{align*}
+Q(t + 2T) &= \varphi(t + 2T, 0)e^{-2TR}e^{-tR} \\
+&= \varphi(t,0)M^2M^{-2}e^{-tR} \\
+&= Q(t).
+\end{align*}
+
+Therefore $Q$ is 2T-periodic
+\end{proof}
+
+
+\section{Existence and Uniqueness for Non-Linear Systems}
+
+\begin{definition}
+A \textbf{metric space} is a vector space $V$ with a distance function $\rho (f,g): V \times V \rightarrow \mathbb{R}$
+such that
+\begin{enumerate}
+\item $\rho(f,g) \geq 0$, $\rho(f,g) = 0$ only when $f = g$,
+\item $\rho(f, g) = \rho(g, f)$,
+\item $\rho(f,h) \leq \rho(f,g) + \rho(g,h)$.
+\end{enumerate}
+\end{definition}
+
+For a normed space we have that $\rho(f,g) = ||f-g||$.
+
+\begin{definition}
+A \textbf{Banach Space} is a normed linear space.
+\end{definition}
+
+\begin{definition}
+A \textbf{complete space} is a space $X$ where every Cauchy sequence in $X$ converges to an element in $X$. 
+\end{definition}
+
+\begin{theorem} \textbf{Contraction Mapping Theorem}.
+Let $T: X \rightarrow X$ be a map in a complete metric space $X$. If $T$ is a contraction, i.e., for all $f,g \in X$ there exists
+a constant $0 < c < 1$ such that $\rho(T(f), T(g)) \leq c \rho(f,g)$, then $T$ has a unique fixed point $f^{*} = T(f^{*}) \in X$.
+\end{theorem}
+
 
 \end{document}
