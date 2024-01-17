@@ -2713,6 +2713,8 @@ Therefore $Q$ is 2T-periodic
 
 \section{Existence and Uniqueness for Non-Linear Systems}
 
+\subsection{Background Material}
+
 \begin{definition}
 A \textbf{metric space} is a vector space $V$ with a distance function $\rho (f,g): V \times V \rightarrow \mathbb{R}$
 such that
@@ -2737,6 +2739,242 @@ A \textbf{complete space} is a space $X$ where every Cauchy sequence in $X$ conv
 Let $T: X \rightarrow X$ be a map in a complete metric space $X$. If $T$ is a contraction, i.e., for all $f,g \in X$ there exists
 a constant $0 < c < 1$ such that $\rho(T(f), T(g)) \leq c \rho(f,g)$, then $T$ has a unique fixed point $f^{*} = T(f^{*}) \in X$.
 \end{theorem}
+
+\begin{remark}
+$C^{0}$ is the space of continuous functions, not necessarily differentiable.
+\end{remark}
+
+\begin{example}
+Consider $C^{0}(S)$, continuous functions on a circle of circumference 1. For any 
+$f \in C^{0}(S)$ define $T(f)(x) = \frac{1}{2} f(2x)$. Consider the sup norm
+$||T(f) - T(f)|| = \frac{1}{2} ||f - g||$. Therefore, $T$ is a contraction and
+there is a unique fixed $C^{0}(S)$.
+
+Consider
+
+\begin{align*}
+f_{0}(x) = \frac{1}{2}\sin (2\pi x)
+\end{align*}
+
+and so
+
+\begin{align*}
+f_1 &= \frac{1}{2} \sin (4\pi x) \\
+f_2 &= T(f_1) = T^2 (f_0) = \left( \frac{1}{2} \right)^2 \sin (2^3 \pi x) \\
+f_n &= T^{n-1} (f_0) = T(f_{n-1}) = \left( \frac{1}{2} \right)^n \sin (2^{n+1} \pi x)
+\end{align*}
+
+and as $n \rightarrow \infty$ we have that $f_n \rightarrow 0$ and so
+$f^* (x) = 0$ is the unique fixed point.
+\end{example}
+
+\begin{remark}
+$C^1$ is the space of functions with continuous derivatives.
+\end{remark}
+
+\begin{definition}
+Let $E$ be an open set in $\mathbb{R}^n$. A function $f:E \rightarrow \mathbb{R}^n$ is \textbf{Lipschitz}
+if for all $x, y \in E$ there exists a $K$ such that $|f(x) - f(y)| \leq K|x-y|$. The
+smallest value of $K$ is the Lipschitz constant of $f$ on $E$.
+\end{definition}
+
+\begin{definition}
+A function is \textbf{Locally Lipschitz} on an open set $E$ if for every point $x \in E$
+there exists a neighborhood $N$ such that $f$ is Lipschitz on $N$.
+\end{definition}
+
+\begin{lemma}
+A lipschitz function is uniformly continuous.
+\end{lemma}
+
+\begin{lemma}
+Let $f$ be a $C^1$ function on a compact, convex set $A$. Then $f$ satisfies a lipschitz
+condition on $A$ with lipschitz constant
+
+\[
+K = \max_{x \in A} ||Df||
+\]
+
+where $Df$ is the first derivative of $f$.
+\end{lemma}
+
+If $f$ is $C^1$ on an open set $E$ then it is locally lipschitz.
+
+Let $E \in \mathbb{R}^n$ be an open set and $A \subset E$ be compact. Then if $f$
+is locally lipschitz on $E$ then it is lipschitz on $A$.
+
+Note that 
+
+\[
+C^1(E) \subset \text{ locally lipschitz } \subset C^{0}(E)
+\]
+
+and 
+
+\[
+\text{ Lipschitz } \subset \text{ locally lipschitz }
+\]
+
+and
+
+\[
+\text{ Lipschitz } \subset \text{ uniformly } C^0(E) \subset C^0(E)
+\]
+
+\subsection{Examples of non-uniqueness and existence}
+
+\begin{example}
+\textbf{Non-uniqueness example}. Consider the initial value problem $x^{\prime} = 3 x^{2/3}$ with 
+$x(0) = 0$.
+
+\textbf{Claim:} $x(t) = 0$ is a solution.
+
+\textbf{Claim:} $x(t) = t^3$ is a solution. Plug in $x(t)$ to the given equation and we get
+
+\[
+x^{\prime} = 3t^2 = 3(t^2)^{2/3} = 3t^2.
+\]
+
+For any $\tau > 0$ 
+
+\[
+x(t) = 
+\begin{cases}
+0 & \text{ if } t \leq \tau \\
+(t - \tau)^3 & \text{ if } t > \tau.
+\end{cases}
+\]
+
+Clearly there is no unique solution to the initial value problem $\dot{x} = 3x^{2/3}$ with
+$x(0) = 0$.
+\end{example}
+
+\begin{remark}
+Note that the initial condition is important for non-uniqueness.
+\end{remark}
+
+\begin{example}
+\textbf{Existence example}
+
+Consider the initial value problem
+
+\[
+x(t) =
+\begin{cases}
+1 & \text{ if } x \leq 0 \\
+-1 & \text{ if } x \geq 0
+\end{cases}
+\]
+
+with $x(0) = )$. There is no solution to this initial value problem.
+\end{example}
+
+\subsection{Picard iterations}
+
+Define an operator $T(x) = x_0 \int^{t}_{t_0} f(x(\tau)) d\tau$, where
+$T$ acts on a continuous function $x$.
+
+A continuous function $x$ solves $\dot{x} = f(x)$ if and only if $x$ is a fixed
+point of $T$, i.e., $T(x) = x$.
+
+To start let $x_0(t)$ and generate $x_1 (t) = T(x_0)$. In this manner,
+
+\[
+x_j = T(x_{j - 1})
+\]
+
+where $x_j$ are Picard iterations.
+
+If $x_j \rightarrow x^*$ as $j \rightarrow \infty$ and $x^*$ is continuous, then
+$x^*$ is a solution to the initial value problem.
+
+\begin{example}
+Let $x_0(t) = x_0$ and let $f(x) = rx$ for $x \in \mathbb{R}$.
+
+Then
+
+\begin{align*}
+x_1 &= x_0 + \int^{t}_{0} f(x_0(\tau))d\tau \\
+&= x_0 + \int^{t}_0 rx_0 d\tau \\
+&= x_0 + rx_0 t.
+\end{align*}
+
+Now to find $x_2$ we plug in $x_1$ to $T$ so we have
+
+\begin{align*}
+x_2 &= t(x_1) = x_0 + \int^{t}_0 f(x_1(\tau))d\tau \\
+&= x_0 + \int^{t}_0 r[x_0 + rx_0 \tau]d\tau \\
+&= x_0 + rx_0 t + \frac{1}{2} r^2 x_0 t^2.
+\end{align*}
+
+Now to find $x_3$ we plug $x_2$ into $T$ so we have
+
+\begin{align*}
+x_3 &= T(x_2) = x_0 + \int^{t}_0 f(x_2(\tau))d\tau \\
+&= x_0 + \int^{t}_0 r[x_0 + rx_0 \tau + \frac{1}{2} r^2 x_0 \tau]d\tau \\
+&= x_0 + rx_0 + \frac{1}{2} r^2x_0 t^2 + \frac{1}{3!} r^3 t^3 \\
+&= x_0(1 + r + \frac{1}{2}(rt)^2 + \frac{1}{3!}(rt)^3).
+\end{align*}
+
+Then we have
+
+\[
+x_j = x_0(1 + r + \frac{1}{2} (rt)^2 + \cdots + \frac{1}{j!}(rt)^j)
+\]
+
+and therefore the $\lim_{j \rightarrow \infty} x_j = x_0 e^{rt}$.
+
+Then for $\dot{x} = rx$ and $x(0) = x_0$ we have $x(t)x_0 e^{rt}$.
+\end{example}
+
+\subsection{Existence and uniqueness}
+
+Consider $\dot{x} = f(x)$ with $x(t_0) = t_0$ where
+$f:\mathbb{R}^n \rightarrow \mathbb{R}^n$ and
+$x:\mathbb{R} \rightarrow \mathbb{R}^n$ with $c = x_0$.
+
+We're looking for a solution $x:J \rightarrow \mathbb{R}^n$ where
+$J = [t_0 - a, t_0 + a]$ and $x$ is continuous.
+
+\begin{claim}
+Suppose $f \in C^K (E, \mathbb{R}^n)$ for $K \geq 0$
+and $x \in C^0(J,E)$ is a solution of $x(t) = x_0 + \int^{t}_{t_0} f(x(\tau))d\tau$.
+Then $x \in C^{K+1}(J,E)$ and is a solution to $\dot{x} = f(x)$, with $x(t) = x_0$.
+\end{claim}
+
+\begin{proof}
+Consider $x(t) = x_0 + \int^{t}_{t_0} f(x(\tau))d\tau$. Then $x(t_0) = x_0$. Since 
+$x \in C^0(J)$, then $f(x(\tau))$ is also continuous and so is
+$x_0 + \int^{t}_{t_0} f(x(\tau))d\tau$, which is $C^1$, so $x$ is $C^1$.
+
+So $x$ is actually differentiable with continuous derivative. By the fundamental
+theorem of calculus,
+
+\[
+\frac{d}{dt} \left( x_0 + \int^{t}_{t_0} f(x(\tau))d\tau \right) = f(x(t))
+\]
+
+so $\dot{x} = f(x(t))$. Suppose $x \in C^j(J)$ for some $0 \leq j \leq k$. Then
+$f(x(\tau)) \in C^j$ and $x \in C^{j+1}(J)$. (This is bootstrapping).
+\end{proof}
+
+
+\subsection{Picard Lindelof Existence and Uniqueness}
+
+Suppose for $x_0 \in \mathbb{R}^n$ there exists a $b$ such that
+$f:B_b(x_0) \rightarrow \mathbb{R}^n$ is Lipschitz with constant $K$. Then
+the initial value problem $\dot{x} = f(x)$ with $x(t_0) = x_0$ has a unique
+solution $x(t)$ for $t \in J = [t_0 - a, t_0 + a]$ provided
+$a = \min\{\frac{b}{m}, \frac{1}{K}\}$ and 
+$\displaystyle M = \max_{x \in B_b(x_0)} |f(x)|$.
+
+\begin{remark}
+$B_b$ is a closed ball in $\mathbb{R}^n$.
+\end{remark}
+
+
+
+
 
 
 \end{document}
